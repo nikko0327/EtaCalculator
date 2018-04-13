@@ -1,12 +1,12 @@
-$(document).ready(function() {
+$(document).ready(function () {
     //
     $('#appliance').focus();
 
-    $.urlParam = function(name) {
+    $.urlParam = function (name) {
         return getFromURL(name);
     }
 
-    $("form").on('submit', function() {
+    $("form").on('submit', function () {
         appliance = $('#appliance').val();
         current = $('#current').val();
         previous = $('#previous').val();
@@ -16,17 +16,17 @@ $(document).ready(function() {
 
         $.post("createApplianceAssignment",
             {
-                appliance : appliance,
-                current : current,
-                previous : previous
+                appliance: appliance,
+                current: current,
+                previous: previous
 
             },
-            function(data){
+            function (data) {
                 $('#spinner').hide();
                 $('#createApplianceAssignment').hide();
                 $('#result').empty();
 
-                if(data.appliance == undefined) {
+                if (data.appliance == undefined) {
                     result = '<p><h3>Error:</h3>'
                         + '<br>' + data.message
                         + '</p>';

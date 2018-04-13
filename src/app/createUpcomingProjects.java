@@ -1,18 +1,19 @@
 package app;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.*;
+import db_credentials.mysql_credentials;
+import net.sf.json.JSONObject;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.*;
 
-import net.sf.json.JSONObject;
-
-import db_credentials.mysql_credentials;
 @WebServlet("/createUpcomingProject")
 public class createUpcomingProjects extends HttpServlet implements mysql_credentials {
     //    private static final long serialVersionUID = 1L;
@@ -32,6 +33,8 @@ public class createUpcomingProjects extends HttpServlet implements mysql_credent
     private String apps_needed;
     private String lastUpdated;
 
+    @Resource(name="jdbc/EtaCalculatorDB")
+    private DataSource dataSource;
 
     InputStream inputStream;
 
@@ -44,7 +47,7 @@ public class createUpcomingProjects extends HttpServlet implements mysql_credent
 
     /**
      * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
-     *      response)
+     * response)
      */
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException, IOException {
@@ -73,8 +76,7 @@ public class createUpcomingProjects extends HttpServlet implements mysql_credent
 
             response.getWriter().write(latestDrive);
             //System.out.println("latest drive = " + latestDrive);
-        }
-        else {
+        } else {
             JSONObject json = new JSONObject();
             json.put("message", eMessage);
             response.getWriter().write(json.toString());
@@ -92,8 +94,10 @@ public class createUpcomingProjects extends HttpServlet implements mysql_credent
             java.sql.Timestamp sqlTime = new Timestamp(currentDatetime.getTime());
             lastUpdated = sqlTime.toString();
 
-            Class.forName("com.mysql.jdbc.Driver");
-            connect = DriverManager.getConnection(db_url, user_name, password);
+//            Class.forName("com.mysql.jdbc.Driver");
+//            connect = DriverManager.getConnection(db_url, user_name, password);
+
+            connect = dataSource.getConnection();
 
             String query_createSprint;
 
@@ -126,17 +130,19 @@ public class createUpcomingProjects extends HttpServlet implements mysql_credent
 
 //            sendEmailNotification();
 
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             eMessage = e.getMessage();
             e.printStackTrace();
-        } catch(ClassNotFoundException e) {
-            eMessage = e.getMessage();
-            e.printStackTrace();
-        } finally {
+        }
+//        catch (ClassNotFoundException e) {
+////            eMessage = e.getMessage();
+////            e.printStackTrace();
+////        }
+        finally {
             try {
-                if(connect != null)
+                if (connect != null)
                     connect.close();
-            } catch(SQLException se) {
+            } catch (SQLException se) {
                 eMessage = se.getMessage();
                 se.printStackTrace();
             }
@@ -150,8 +156,9 @@ public class createUpcomingProjects extends HttpServlet implements mysql_credent
         JSONObject json = new JSONObject();
         Connection connect = null;
         try {
-            Class.forName("com.mysql.jdbc.Driver");
-            connect = DriverManager.getConnection(db_url, user_name, password);
+//            Class.forName("com.mysql.jdbc.Driver");
+//            connect = DriverManager.getConnection(db_url, user_name, password);
+            connect = dataSource.getConnection();
 
             java.util.Date currentDatetime = new java.util.Date();
             java.sql.Timestamp sqlTime = new Timestamp(currentDatetime.getTime());
@@ -176,17 +183,19 @@ public class createUpcomingProjects extends HttpServlet implements mysql_credent
                 json.put("updated_date", sqlTime);
                 json.put("apps_needed", apps_needed);
             }
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             eMessage = e.getMessage();
             e.printStackTrace();
-        } catch(ClassNotFoundException e) {
-            eMessage = e.getMessage();
-            e.printStackTrace();
-        } finally {
+        }
+//        catch (ClassNotFoundException e) {
+//            eMessage = e.getMessage();
+//            e.printStackTrace();
+//        }
+        finally {
             try {
-                if(connect != null)
+                if (connect != null)
                     connect.close();
-            } catch(SQLException se) {
+            } catch (SQLException se) {
                 eMessage = se.getMessage();
                 se.printStackTrace();
             }

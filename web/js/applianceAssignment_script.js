@@ -1,20 +1,20 @@
-$(document).ready(function() {
+$(document).ready(function () {
 
     $('#appliance').focus();
-    $("[id$=date]").datepicker({ dateFormat: "yy-mm-dd"});
+    $("[id$=date]").datepicker({dateFormat: "yy-mm-dd"});
 
     $('#search_form').on('submit', applianceAssignment);
 
-    $(document).ready(function() {
+    $(document).ready(function () {
         $('#search_form').submit();
     });
 
-    $(document).on('click', '#drive_table a', function(e) {
+    $(document).on('click', '#drive_table a', function (e) {
         e.stopPropagation();
     });
 
-    $(document).on('click', '#drive_table tr', function(){
-        var id = $(this).attr('id').replace('tr_','');
+    $(document).on('click', '#drive_table tr', function () {
+        var id = $(this).attr('id').replace('tr_', '');
         getValuesById(id);
 
         $('#details_change_customer').html("<a href='createApplianceAssignment.jsp?appliance=" + appliance + "&" +
@@ -28,27 +28,27 @@ $(document).ready(function() {
         $('#detailsModal').modal();
     });
 
-    $(document).on('click', 'button[name="deleteButton"]', function(e) {
+    $(document).on('click', 'button[name="deleteButton"]', function (e) {
 
-        var id = $(this).attr('id').replace('delete_','');
+        var id = $(this).attr('id').replace('delete_', '');
         var appliance = $('#appliance' + id).val();
         var current = $('#current' + id).val();
         var previous = $('#previous' + id).val();
         var username = $('#username').val();
 
         bootbox.confirm("Are you sure you want to delete this drive?",
-            function(result) {
-                if(result == true) {
+            function (result) {
+                if (result == true) {
                     $.post("deleteApplianceAssignment",
                         {
-                            appliance : appliance,
-                            current : current,
-                            previous : previous
+                            appliance: appliance,
+                            current: current,
+                            previous: previous
                         },
-                        function(data) {
+                        function (data) {
                             $('#modal_spinner').hide();
 
-                            if(data.result == 'success') {
+                            if (data.result == 'success') {
                                 //alert("Drive successfully deleted");
                                 $('#search_form').submit();
                             }
@@ -61,8 +61,8 @@ $(document).ready(function() {
         e.stopPropagation();
     });
 
-    $(document).on('click', "button[name='updateButton']", function(e) {
-        var id = $(this).attr('id').replace('update_','');
+    $(document).on('click', "button[name='updateButton']", function (e) {
+        var id = $(this).attr('id').replace('update_', '');
         getValuesById(id);
 
         $('#change_customer').html("<a href='createApplianceAssignment.jsp?appliance=" + appliance + "&" +
@@ -82,13 +82,14 @@ $(document).ready(function() {
         e.stopPropagation();
     });
 
-    $(document).on('click', '#modalUpdateButton', function() {
+    $(document).on('click', '#modalUpdateButton', function () {
         var appliance = $('#modal_appliance').val();
+        alert("TESTING MODAL_APPLIANCE" + $('#modal_appliance').val());
         var current = $('#modal_current').val();
         var previous = $('#modal_previous').val();
         var username = $('#username').val();
 
-        if(appliance == null || appliance == "") {
+        if (appliance == null || appliance == "") {
             alert("Drive must have Appliance");
             $("#modal_appliance").focus();
 
@@ -99,14 +100,14 @@ $(document).ready(function() {
 
         $.post("updateApplianceAssignment",
             {
-                appliance : appliance,
-                current : current,
-                previous : previous
+                appliance: appliance,
+                current: current,
+                previous: previous
             },
-            function(data) {
+            function (data) {
                 $('#modal_spinner').hide();
 
-                if(data.result == 'success') {
+                if (data.result == 'success') {
                     //alert("Drive successfully updated");
                     $('[data-dismiss="modal"]').click();
                     $('#search_form').submit();
@@ -126,14 +127,14 @@ function applianceAssignment() {
 
     $.post("applianceAssignment",
         {
-            appliance : appliance,
-            current : current,
-            previous : previous
+            appliance: appliance,
+            current: current,
+            previous: previous
         },
-        function(data) {
+        function (data) {
             $('#appliance_list').empty();
 
-            if(data.totalMatches == 0) {
+            if (data.totalMatches == 0) {
                 var msg = "No drives found for the selection, please try different combination or "
                     + "update=false" + "'>create a drive</a>";
 
@@ -154,24 +155,24 @@ function applianceAssignment() {
                 value += "<tbody>";
 
                 var i = 1;
-                $.each(data.drives, function(k,v) {
-                    value += "<tr class='detail' id='tr_"+ i + "'>";
+                $.each(data.drives, function (k, v) {
+                    value += "<tr class='detail' id='tr_" + i + "'>";
 
-                    if(v.appliance == undefined) {
+                    if (v.appliance == undefined) {
                         value += "<td>" + "Error: " + v.message + "</td>";
-                    }else {
+                    } else {
                         value += "<td>" + v.appliance + "</td>";
                         value += "<td>" + v.current + "</td>";
                         value += "<td>" + v.previous + "</td>";
 
                         value += "<td><button name ='updateButton' class='btn btn-mini' id='update_" + i + "'><i class='icon-edit'></i></button>";
 
-                        if($('#username').val() == "nokada" || $('#username').val() == "nlee")
-                            value += "&nbsp;<button name ='deleteButton' class='btn btn-mini btn-danger' id='delete_" + i +"'><i class='icon-trash'></i></button>";
+                        if ($('#username').val() == "nokada" || $('#username').val() == "nlee")
+                            value += "&nbsp;<button name ='deleteButton' class='btn btn-mini btn-danger' id='delete_" + i + "'><i class='icon-trash'></i></button>";
 
                         value +=
                             "<input type='hidden' id='appliance" + i + "' value='" + v.appliance + "'>" +
-                            "<input type='hidden' id='current" + i + "' value='" + v.current +"'>" +
+                            "<input type='hidden' id='current" + i + "' value='" + v.current + "'>" +
                             "<input type='hidden' id='previous" + i + "' value='" + v.previous + "'>" +
                             "</td>";
                     }

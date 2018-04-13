@@ -1,6 +1,3 @@
-<%@ page import="java.io.FileOutputStream" %>
-<%@ page import="java.io.File" %>
-<%@ page import="java.io.DataInputStream" %>
 <%@include file="navbar.jsp" %>
 <script>
     function myFunction() {
@@ -9,17 +6,17 @@
 </script>
 <br>
 
-    <%--Search Options--%>
+<%--Search Options--%>
 <br>
 <h1 style="text-align: center">Appliance Assignment Sheet
     <div>
-    <button class="btn btn-default"><a href="createApplianceAssignment.jsp">Add Appliance Assignment</a></button>
-</div>
+        <button class="btn btn-default"><a href="createApplianceAssignment.jsp">Add Appliance Assignment</a></button>
+    </div>
 </h1>
 <div id="search_options">
     <%--<h1 style="text-align: center"><i class="icon-search"></i> Search Drive</h1>--%>
     <form class="form-horizontal" id="search_form" style="text-align: center">
-        <input placeholder ="Appliance" type="text" name="appliance" id="appliance" style="height: inherit">
+        <input placeholder="Appliance" type="text" name="appliance" id="appliance" style="height: inherit">
         <input placeholder="current" type="text" name="current" id="current" style="height: inherit">
         <input placeholder="previous" type="text" name="previous" id="previous" style="height: inherit">
         </select>
@@ -135,7 +132,6 @@
     </div>
 </div>
 <!-- end of details modal -->
-
 
 
 <input id="username" value='<%= userName %>' hidden>

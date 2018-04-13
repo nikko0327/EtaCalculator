@@ -1,17 +1,17 @@
 package app;
 
-import java.io.IOException;
-import java.sql.*;
-import java.util.Date;
+import db_credentials.mysql_credentials;
+import net.sf.json.JSONObject;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import net.sf.json.JSONObject;
-
-import db_credentials.mysql_credentials;
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.sql.*;
+import java.util.Date;
 
 public class updateCurrentProject extends HttpServlet implements mysql_credentials {
     private static final long serialVersionUID = 1L;
@@ -29,6 +29,9 @@ public class updateCurrentProject extends HttpServlet implements mysql_credentia
     private String appliance_count;
     private String is_completed;
 
+    @Resource(name = "jdbc/EtaCalculatorDB")
+    private DataSource dataSource;
+
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -38,7 +41,7 @@ public class updateCurrentProject extends HttpServlet implements mysql_credentia
 
     /**
      * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest request, javax.servlet.http.HttpServletResponse
-     *      response)
+     * response)
      */
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException, IOException {
@@ -57,10 +60,9 @@ public class updateCurrentProject extends HttpServlet implements mysql_credentia
 
         JSONObject json = new JSONObject();
 
-        if(updateDriveAndAddToHistory()) {
+        if (updateDriveAndAddToHistory()) {
             json.put("result", "success");
-        }
-        else
+        } else
             json.put("result", eMessage);
 
         response.setContentType("application/json");
@@ -74,8 +76,9 @@ public class updateCurrentProject extends HttpServlet implements mysql_credentia
         boolean result = false;
         Connection connect = null;
         try {
-            Class.forName("com.mysql.jdbc.Driver");
-            connect = DriverManager.getConnection(db_url, user_name, password);
+//            Class.forName("com.mysql.jdbc.Driver");
+//            connect = DriverManager.getConnection(db_url, user_name, password);
+            connect = dataSource.getConnection();
 
             Date currentDatetime = new Date();
             Timestamp sqlTime = new Timestamp(currentDatetime.getTime());
@@ -87,7 +90,7 @@ public class updateCurrentProject extends HttpServlet implements mysql_credentia
             PreparedStatement prepSearchDriveStmtAppliance = connect.prepareStatement(query_appliance); //Statement to execute
             ResultSet rsAppliance = prepSearchDriveStmtAppliance.executeQuery(); //Execute statement
             int counter = 0;
-            while(rsAppliance.next()){ //Go through every row and add 1 to counter
+            while (rsAppliance.next()) { //Go through every row and add 1 to counter
                 counter++;
             }
             System.out.println("Appliance Count: " + counter); //Test run
@@ -100,7 +103,7 @@ public class updateCurrentProject extends HttpServlet implements mysql_credentia
             PreparedStatement prepSearchDriveStmtCount = connect.prepareStatement(query_count); //Statement to execute
             ResultSet rsCount = prepSearchDriveStmtCount.executeQuery(); //Execute statement
             int counterUsed = 0;
-            while(rsCount.next()){ //Go through every row and add 1 to counter
+            while (rsCount.next()) { //Go through every row and add 1 to counter
                 int applianceCount = Integer.parseInt(rsCount.getString("appliance_count"));
                 counterUsed = counterUsed + applianceCount;
             }
@@ -108,7 +111,7 @@ public class updateCurrentProject extends HttpServlet implements mysql_credentia
             //Counting appliances in used END
 
             int counterAvailable = counter - counterUsed;
-            System.out.println("Counter Available: "  + counterAvailable);
+            System.out.println("Counter Available: " + counterAvailable);
 
             String query_createSprint;
 
@@ -116,10 +119,10 @@ public class updateCurrentProject extends HttpServlet implements mysql_credentia
             System.out.println("CHECK SUM: " + checkLimit);
 
 
-            if(Integer.parseInt(appliance_count) <= counterAvailable){
+            if (Integer.parseInt(appliance_count) <= counterAvailable) {
 
                 String query_updateDrive = "update current_project set customer = ?, jira = ?, dc = ?, data_size = ?, import_engr = ?, tem = ?, current_stage = ?, created_date = ?, notes = ?, appliance_count = ?, is_completed = ? " +
-                        "where customer = '" + customer +"'";
+                        "where customer = '" + customer + "'";
 
                 PreparedStatement prepUpdateDriveStmt = connect.prepareStatement(query_updateDrive);
                 prepUpdateDriveStmt.setString(1, customer);
@@ -150,17 +153,19 @@ public class updateCurrentProject extends HttpServlet implements mysql_credentia
                 System.out.println("Can't Add More!!!");
             }
 
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             eMessage = e.getMessage();
             e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            eMessage = e.getMessage();
-            e.printStackTrace();
-        } finally {
+        }
+//        catch (ClassNotFoundException e) {
+//            eMessage = e.getMessage();
+//            e.printStackTrace();
+//        }
+        finally {
             try {
-                if(connect != null)
+                if (connect != null)
                     connect.close();
-            } catch(SQLException se) {
+            } catch (SQLException se) {
                 eMessage = se.getMessage();
                 se.printStackTrace();
             }

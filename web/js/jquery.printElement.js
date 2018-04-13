@@ -20,7 +20,7 @@
 *   
 *   Note, Iframe Printing is not supported in Opera and Chrome 3.0, a popup window will be shown instead
 */
-; (function (window, undefined) {
+;(function (window, undefined) {
     var document = window["document"];
     var $ = window["jQuery"];
     $.fn["printElement"] = function (options) {
@@ -63,6 +63,7 @@
         "href": '',
         "media": ''
     };
+
     function _printElement(element, opts) {
         //Create markup to be printed
         var html = _getMarkup(element, opts);

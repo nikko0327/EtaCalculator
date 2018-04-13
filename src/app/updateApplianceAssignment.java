@@ -1,17 +1,17 @@
 package app;
 
-import java.io.IOException;
-import java.sql.*;
-import java.util.Date;
+import db_credentials.mysql_credentials;
+import net.sf.json.JSONObject;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import net.sf.json.JSONObject;
-
-import db_credentials.mysql_credentials;
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.sql.*;
+import java.util.Date;
 
 public class updateApplianceAssignment extends HttpServlet implements mysql_credentials {
     private static final long serialVersionUID = 1L;
@@ -20,6 +20,9 @@ public class updateApplianceAssignment extends HttpServlet implements mysql_cred
     private String appliance;
     private String current;
     private String previous;
+
+    @Resource(name = "jdbc/EtaCalculatorDB")
+    private DataSource dataSource;
 
     /**
      * @see HttpServlet#HttpServlet()
@@ -30,7 +33,7 @@ public class updateApplianceAssignment extends HttpServlet implements mysql_cred
 
     /**
      * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest request, javax.servlet.http.HttpServletResponse
-     *      response)
+     * response)
      */
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException, IOException {
@@ -40,10 +43,9 @@ public class updateApplianceAssignment extends HttpServlet implements mysql_cred
         previous = request.getParameter("previous");
         JSONObject json = new JSONObject();
 
-        if(updateDriveAndAddToHistory()) {
+        if (updateDriveAndAddToHistory()) {
             json.put("result", "success");
-        }
-        else
+        } else
             json.put("result", eMessage);
 
         response.setContentType("application/json");
@@ -57,14 +59,15 @@ public class updateApplianceAssignment extends HttpServlet implements mysql_cred
         boolean result = false;
         Connection connect = null;
         try {
-            Class.forName("com.mysql.jdbc.Driver");
-            connect = DriverManager.getConnection(db_url, user_name, password);
+//            Class.forName("com.mysql.jdbc.Driver");
+//            connect = DriverManager.getConnection(db_url, user_name, password);
+            connect = dataSource.getConnection();
 
             Date currentDatetime = new Date();
             Timestamp sqlTime = new Timestamp(currentDatetime.getTime());
 
             String query_updateDrive = "update appliance_assignment set appliance = ?, current = ?, previous = ?" +
-                    "where appliance = '" + appliance +"'";
+                    "where appliance = '" + appliance + "'";
 
             PreparedStatement prepUpdateDriveStmt = connect.prepareStatement(query_updateDrive);
             prepUpdateDriveStmt.setString(1, appliance);
@@ -85,17 +88,19 @@ public class updateApplianceAssignment extends HttpServlet implements mysql_cred
             prepUpdateDriveStmt.close();
 
 
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             eMessage = e.getMessage();
             e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            eMessage = e.getMessage();
-            e.printStackTrace();
-        } finally {
+        }
+//        catch (ClassNotFoundException e) {
+//            eMessage = e.getMessage();
+//            e.printStackTrace();
+//        }
+        finally {
             try {
-                if(connect != null)
+                if (connect != null)
                     connect.close();
-            } catch(SQLException se) {
+            } catch (SQLException se) {
                 eMessage = se.getMessage();
                 se.printStackTrace();
             }

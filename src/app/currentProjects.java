@@ -1,19 +1,19 @@
 package app;
 
+import db_credentials.mysql_credentials;
+import net.sf.json.JSONObject;
+
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.*;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
-
-import db_credentials.mysql_credentials;
-import net.sf.json.JSONObject;
 
 /**
  * Servlet implementation class currentProjects
@@ -23,6 +23,9 @@ public class currentProjects extends HttpServlet implements mysql_credentials {
     private String searchResult;
     private String eMessage;
     int applianceCounter = 0;
+
+    @Resource(name="jdbc/EtaCalculatorDB")
+    private DataSource dataSource;
 
     /**
      * @see HttpServlet#HttpServlet()
@@ -39,7 +42,7 @@ public class currentProjects extends HttpServlet implements mysql_credentials {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        if(getSearchResult())
+        if (getSearchResult())
             response.getWriter().write(searchResult);
         else
             response.getWriter().write(new JSONObject().put("message", eMessage).toString());
@@ -47,14 +50,15 @@ public class currentProjects extends HttpServlet implements mysql_credentials {
         response.flushBuffer();
     }
 
-    public boolean getSearchResult(){
+    public boolean getSearchResult() {
 
         boolean result = false;
 
         Connection connect = null;
-        try{
-            Class.forName("com.mysql.jdbc.Driver");
-            connect = DriverManager.getConnection(db_url, user_name, password);
+        try {
+//            Class.forName("com.mysql.jdbc.Driver");
+//            connect = DriverManager.getConnection(db_url, user_name, password);
+            connect = dataSource.getConnection();
 
             ArrayList<Map<String, String>> list = new ArrayList<Map<String, String>>();
 
@@ -73,7 +77,7 @@ public class currentProjects extends HttpServlet implements mysql_credentials {
             PreparedStatement prepSearchDriveStmtAppliance = connect.prepareStatement(query_appliance); //Statement to execute
             ResultSet rsAppliance = prepSearchDriveStmtAppliance.executeQuery(); //Execute statement
             int counter = 0;
-            while(rsAppliance.next()){ //Go through every row and add 1 to counter
+            while (rsAppliance.next()) { //Go through every row and add 1 to counter
                 counter++;
             }
             System.out.println("Appliance Count: " + counter); //Test run
@@ -86,7 +90,7 @@ public class currentProjects extends HttpServlet implements mysql_credentials {
             PreparedStatement prepSearchDriveStmtCount = connect.prepareStatement(query_count); //Statement to execute
             ResultSet rsCount = prepSearchDriveStmtCount.executeQuery(); //Execute statement
             int counterUsed = 0;
-            while(rsCount.next()){ //Go through every row and add 1 to counter
+            while (rsCount.next()) { //Go through every row and add 1 to counter
                 int applianceCount = Integer.parseInt(rsCount.getString("appliance_count"));
                 counterUsed = counterUsed + applianceCount;
             }
@@ -95,7 +99,7 @@ public class currentProjects extends HttpServlet implements mysql_credentials {
 
             result = true;
 
-            while(rs.next()){
+            while (rs.next()) {
                 Map<String, String> map = new HashMap<String, String>();
 
                 map.put("customer", rs.getString("customer"));
@@ -111,7 +115,7 @@ public class currentProjects extends HttpServlet implements mysql_credentials {
                 map.put("is_completed", rs.getString("is_completed"));
 
                 //Added for Closing Date
-                if((rs.getString("created_date") == null) || (rs.getString("created_date") == "")){ //Check if created_date is set to null or blank.
+                if ((rs.getString("created_date") == null) || (rs.getString("created_date") == "")) { //Check if created_date is set to null or blank.
                     map.put("closing_date", "Date Not Set");
                 } else {
 
@@ -167,7 +171,6 @@ public class currentProjects extends HttpServlet implements mysql_credentials {
             }
 
 
-
             int totalMatches = list.size();
 
             JSONObject json = new JSONObject();
@@ -180,17 +183,19 @@ public class currentProjects extends HttpServlet implements mysql_credentials {
             rs.close();
             prepSearchDriveStmt.close();
 
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             eMessage = e.getMessage();
             e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            eMessage = e.getMessage();
-            e.printStackTrace();
-        } finally {
+        }
+//        catch (ClassNotFoundException e) {
+//            eMessage = e.getMessage();
+//            e.printStackTrace();
+//        }
+        finally {
             try {
-                if(connect != null)
+                if (connect != null)
                     connect.close();
-            } catch(SQLException se) {
+            } catch (SQLException se) {
                 eMessage = se.getMessage();
                 se.printStackTrace();
             }
@@ -200,8 +205,8 @@ public class currentProjects extends HttpServlet implements mysql_credentials {
     }
 
     //Method to calculate day in between dates
-    public int daysBetween(Date d){
+    public int daysBetween(Date d) {
         Date d1 = new Date();
-        return (int)( (d.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24));
+        return (int) ((d.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24));
     }
 }

@@ -1,28 +1,28 @@
 var globalCustomerName = [];
 var startMonth = [];
 var endMonth = [];
-var applianceInUse =[];
+var applianceInUse = [];
 var applianceCount;
 var used;
-google.charts.load('current', {'packages':['timeline']});
+google.charts.load('current', {'packages': ['timeline']});
 google.charts.setOnLoadCallback(drawChart);
-$(document).ready(function() {
+$(document).ready(function () {
 
     $('#customer_name').focus();
-    $("[id$=month]").datepicker({ dateFormat: "yy-mm-dd"});
+    $("[id$=month]").datepicker({dateFormat: "yy-mm-dd"});
 
     $('#search_form').on('submit', currentProject);
 
-    $(document).ready(function() {
+    $(document).ready(function () {
         $('#search_form').submit();
     });
 
-    $(document).on('click', '#drive_table a', function(e) {
+    $(document).on('click', '#drive_table a', function (e) {
         e.stopPropagation();
     });
 
-    $(document).on('click', '#drive_table tr', function(){
-        var id = $(this).attr('id').replace('tr_','');
+    $(document).on('click', '#drive_table tr', function () {
+        var id = $(this).attr('id').replace('tr_', '');
         getValuesById(id);
 
         $('#details_change_customer').html("<a href='createUpcomingProjects.jsp?customer_name=" + customer_name + "&" +
@@ -45,9 +45,9 @@ $(document).ready(function() {
         $('#detailsModal').modal();
     });
 
-    $(document).on('click', 'button[name="deleteButton"]', function(e) {
+    $(document).on('click', 'button[name="deleteButton"]', function (e) {
 
-        var id = $(this).attr('id').replace('delete_','');
+        var id = $(this).attr('id').replace('delete_', '');
         var customer_name = $('#customer_name' + id).val();
         var sow_created_date = $('#sow_created_date' + id).val();
         var estimated_size = $('#estimated_size' + id).val();
@@ -61,26 +61,26 @@ $(document).ready(function() {
         var apps_needed = $('#apps_needed').val();
 
         bootbox.confirm("Are you sure you want to delete this project?",
-            function(result) {
-                if(result == true) {
+            function (result) {
+                if (result == true) {
                     $.post("deleteUpcomingProject",
                         {
-                            customer_name : customer_name,
-                            sow_created_date : sow_created_date,
-                            estimated_size : estimated_size,
-                            jira : jira,
-                            dc : dc,
-                            tem : tem,
-                            notes : notes,
-                            expected_start_month : expected_start_month,
-                            expected_end_month : expected_end_month,
-                            updated_date : updated_date,
-                            apps_needed : apps_needed
+                            customer_name: customer_name,
+                            sow_created_date: sow_created_date,
+                            estimated_size: estimated_size,
+                            jira: jira,
+                            dc: dc,
+                            tem: tem,
+                            notes: notes,
+                            expected_start_month: expected_start_month,
+                            expected_end_month: expected_end_month,
+                            updated_date: updated_date,
+                            apps_needed: apps_needed
                         },
-                        function(data) {
+                        function (data) {
                             $('#modal_spinner').hide();
 
-                            if(data.result == 'success') {
+                            if (data.result == 'success') {
                                 //alert("Drive successfully deleted");
                                 $('#search_form').submit();
                             }
@@ -94,8 +94,8 @@ $(document).ready(function() {
     });
 
     //For updating a row(Changing values)
-    $(document).on('click', "button[name='updateButton']", function(e) {
-        var id = $(this).attr('id').replace('update_','');
+    $(document).on('click', "button[name='updateButton']", function (e) {
+        var id = $(this).attr('id').replace('update_', '');
         getValuesById(id);
 
         $('#change_customer').html("<a href='createUpcomingProjects.jsp?customer_name=" + customer_name + "&" +
@@ -127,7 +127,7 @@ $(document).ready(function() {
         e.stopPropagation();
     });
 
-    $(document).on('click', '#modalUpdateButton', function() {
+    $(document).on('click', '#modalUpdateButton', function () {
         var customer_name = $('#modal_customer_name').val();
         var sow_created_date = $('#modal_sow_created_date').val();
         var estimated_size = $('#modal_estimated_size').val();
@@ -141,7 +141,7 @@ $(document).ready(function() {
         var apps_needed = $('#modal_apps_needed').val();
         var username = $('#username').val();
 
-        if(customer_name == null || customer_name == "") {
+        if (customer_name == null || customer_name == "") {
             alert("Drive must have project");
             $("#modal_customer_name").focus();
 
@@ -152,22 +152,22 @@ $(document).ready(function() {
 
         $.post("updateUpcomingProject",
             {
-                customer_name : customer_name,
-                sow_created_date : sow_created_date,
-                estimated_size : estimated_size,
-                jira : jira,
-                dc : dc,
-                tem : tem,
-                notes : notes,
-                expected_start_month : expected_start_month,
-                expected_end_month : expected_end_month,
-                updated_date : updated_date,
-                apps_needed : apps_needed,
+                customer_name: customer_name,
+                sow_created_date: sow_created_date,
+                estimated_size: estimated_size,
+                jira: jira,
+                dc: dc,
+                tem: tem,
+                notes: notes,
+                expected_start_month: expected_start_month,
+                expected_end_month: expected_end_month,
+                updated_date: updated_date,
+                apps_needed: apps_needed,
             },
-            function(data) {
+            function (data) {
                 $('#modal_spinner').hide();
 
-                if(data.result == 'success') {
+                if (data.result == 'success') {
                     //alert("Drive successfully updated");
                     $('[data-dismiss="modal"]').click();
                     $('#search_form').submit();
@@ -178,10 +178,9 @@ $(document).ready(function() {
     });
 
 
-
     //For STARTING a project(Send to current projects)
-    $(document).on('click', "button[name='startButton']", function(e) {
-        var id = $(this).attr('id').replace('start_','');
+    $(document).on('click', "button[name='startButton']", function (e) {
+        var id = $(this).attr('id').replace('start_', '');
         getValuesById(id);
 
         $('#start_modal_customer_name').val(customer_name);
@@ -201,7 +200,7 @@ $(document).ready(function() {
         e.stopPropagation();
     });
 
-    $(document).on('click', '#startModalUpdateButton', function() {
+    $(document).on('click', '#startModalUpdateButton', function () {
         var customer = $('#start_modal_customer_name').val();
         var jira = $('#start_modal_jira').val();
         var dc = $('#start_modal_dc').val();
@@ -218,26 +217,26 @@ $(document).ready(function() {
 
         $.post("createCurrentProjects",
             {
-                customer : customer,
-                jira : jira,
-                dc : dc,
-                data_size : data_size,
-                import_engr : import_engr,
-                tem : tem,
-                notes : notes,
-                current_stage : current_stage,
-                created_date : created_date,
-                appliance_count : appliance_count,
-                notes : notes,
+                customer: customer,
+                jira: jira,
+                dc: dc,
+                data_size: data_size,
+                import_engr: import_engr,
+                tem: tem,
+                notes: notes,
+                current_stage: current_stage,
+                created_date: created_date,
+                appliance_count: appliance_count,
+                notes: notes,
 
             },
-            function(data) {
+            function (data) {
                 $('#modal_spinner').hide();
-                if((used + parseInt(appliance_count)) > applianceCount){
+                if ((used + parseInt(appliance_count)) > applianceCount) {
                     alert("Error: Number of appliance(s) exceeded\n" + "Customer: " + customer_name);
                     $('[data-dismiss="modal"]').click();
                     ReloadPage();
-                } else{
+                } else {
                     alert("Success: Please check the current projects.\n" + "Customer: " + customer_name + "\n" + "Please delete the row.");
                     $('[data-dismiss="modal"]').click();
                     ReloadPage();
@@ -264,31 +263,31 @@ function currentProject() {
 
     $.post("upcomingProjects",
         {
-            customer_name : customer_name,
-            sow_created_date : sow_created_date,
-            estimated_size : estimated_size,
-            jira : jira,
-            dc : dc,
-            tem : tem,
-            notes : notes,
-            expected_start_month : expected_start_month,
-            expected_end_month : expected_end_month,
-            updated_date : updated_date,
-            apps_needed : apps_needed,
+            customer_name: customer_name,
+            sow_created_date: sow_created_date,
+            estimated_size: estimated_size,
+            jira: jira,
+            dc: dc,
+            tem: tem,
+            notes: notes,
+            expected_start_month: expected_start_month,
+            expected_end_month: expected_end_month,
+            updated_date: updated_date,
+            apps_needed: apps_needed,
         },
-        function(data) {
+        function (data) {
             $('#appliance_list').empty();
             applianceCount = data.applianceCount;
             used = data.totalApplianceInUse
 
-            if(data.totalMatches == 0) {
+            if (data.totalMatches == 0) {
                 var msg = "No drives found for the selection, please try different combination or "
                     + "update=false" + "'>create a drive</a>";
 
                 $('#appliance_list').append(msg);
             }
             else {
-                var value = "<p>Total Matches: " + data.totalMatches +"</p>";
+                var value = "<p>Total Matches: " + data.totalMatches + "</p>";
                 value += "<table id='drive_table' class='table table-condensed table-hover tablesorter'>";
                 value += "<thead>";
                 value += "<tr style='background-color:#D8D8D8'>";
@@ -311,13 +310,13 @@ function currentProject() {
 
 
                 var i = 1;
-                $.each(data.drives, function(k,v) {
+                $.each(data.drives, function (k, v) {
 
-                    value += "<tr class='detail' id='tr_"+ i + "'>";
+                    value += "<tr class='detail' id='tr_" + i + "'>";
 
-                    if(v.customer_name == undefined) {
+                    if (v.customer_name == undefined) {
                         value += "<td>" + "Error: " + v.message + "</td>";
-                    }else {
+                    } else {
                         globalCustomerName.push(v.customer_name) // Adding customer_name to an array for charting
                         value += "<td>" + v.customer_name + "</td>";
                         value += "<td>" + formatDate(v.sow_created_date) + "</td>";
@@ -341,20 +340,20 @@ function currentProject() {
                         value += "<td><button name ='updateButton' class='btn btn-mini' id='update_" + i + "'><i class='icon-edit'></i></button>";
 
                         //Button for deleting a row. Only visible to a specified user
-                        if($('#username').val() == "nokada" || $('#username').val() == "nlee")
-                            value += "&nbsp;<button name ='deleteButton' class='btn btn-mini btn-danger' id='delete_" + i +"'><i class='icon-trash'></i></button>";
+                        if ($('#username').val() == "nokada" || $('#username').val() == "nlee" || $('#username').val() == "mihuang")
+                            value += "&nbsp;<button name ='deleteButton' class='btn btn-mini btn-danger' id='delete_" + i + "'><i class='icon-trash'></i></button>";
 
                         value +=
                             "<input type='hidden' id='customer_name" + i + "' value='" + v.customer_name + "'>" +
-                            "<input type='hidden' id='sow_created_date" + i + "' value='" + v.sow_created_date +"'>" +
+                            "<input type='hidden' id='sow_created_date" + i + "' value='" + v.sow_created_date + "'>" +
                             "<input type='hidden' id='estimated_size" + i + "' value='" + v.estimated_size + "'>" +
                             "<input type='hidden' id='jira" + i + "' value='" + v.jira + "'>" +
-                            "<input type='hidden' id='dc" + i + "' value='" + v.dc +"'>" +
+                            "<input type='hidden' id='dc" + i + "' value='" + v.dc + "'>" +
                             "<input type='hidden' id='tem" + i + "' value='" + v.tem + "'>" +
-                            "<input type='hidden' id='notes" + i + "' value='" + v.notes +"'>" +
+                            "<input type='hidden' id='notes" + i + "' value='" + v.notes + "'>" +
                             "<input type='hidden' id='expected_start_month" + i + "' value='" + v.expected_start_month + "'>" +
                             "<input type='hidden' id='expected_end_month" + i + "' value='" + v.expected_end_month + "'>" +
-                            "<input type='hidden' id='updated_date" + i + "' value='" + v.updated_date +"'>" +
+                            "<input type='hidden' id='updated_date" + i + "' value='" + v.updated_date + "'>" +
                             "<input type='hidden' id='apps_needed" + i + "' value='" + v.apps_needed + "'>" +
                             "</td>";
                     }
@@ -406,13 +405,13 @@ function drawChart() {
     data.addColumn('date', 'End Date');
     var startSplit = "";
     var endSplit = "";
-    for(var i = 0; i <= globalCustomerName.length - 1; i++){
-        if(startMonth[i] != "" && endMonth[i] != ""){
+    for (var i = 0; i <= globalCustomerName.length - 1; i++) {
+        if (startMonth[i] != "" && endMonth[i] != "") {
             startSplit = startMonth[i].split("-");
             endSplit = endMonth[i].split("-");
         }
         data.addRows([
-            [globalCustomerName[i] + "(" + applianceInUse[i] + ")" , new Date(startSplit[0], startSplit[1] - 1, startSplit[2]), new Date(endSplit[0], endSplit[1] - 1, endSplit[2])],
+            [globalCustomerName[i] + "(" + applianceInUse[i] + ")", new Date(startSplit[0], startSplit[1] - 1, startSplit[2]), new Date(endSplit[0], endSplit[1] - 1, endSplit[2])],
         ]);
         var options = {
             height: 450,
@@ -430,6 +429,7 @@ function drawChart() {
     console.log('End Date: ')
     console.log(endMonth.toString())
 }
+
 // For charting End
 
 //For Reloading the page
@@ -438,9 +438,9 @@ function ReloadPage() {
 };
 
 //Formatting date from yyyy-MM-dd to M/dd/yyyy
-function formatDate(d){
+function formatDate(d) {
     var date = new Date(d);
-    return (date.getMonth() + 1) + '/' + (date.getDate()) + '/' +  date.getFullYear();
+    return (date.getMonth() + 1) + '/' + (date.getDate()) + '/' + date.getFullYear();
 }
 
 

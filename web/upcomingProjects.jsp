@@ -6,9 +6,6 @@
   To change this template use File | Settings | File Templates.
 --%>
 
-<%@ page import="java.io.FileOutputStream" %>
-<%@ page import="java.io.File" %>
-<%@ page import="java.io.DataInputStream" %>
 <%@include file="navbar.jsp" %>
 <br>
 
@@ -36,7 +33,7 @@
 
 <div class="container">
     <%--Added for charting Start--%>
-    <div id="chart_div" ></div>
+    <div id="chart_div"></div>
     <%--Added for charting End--%>
 </div>
 
@@ -224,7 +221,6 @@
     </div>
 </div>
 <!-- end of details modal -->
-
 
 
 <!-- Start of start modal -->

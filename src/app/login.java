@@ -1,7 +1,9 @@
 package app;
 
+import db_credentials.mysql_credentials;
 import net.sf.json.JSONObject;
 
+import javax.annotation.Resource;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -14,13 +16,15 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
-
-import db_credentials.mysql_credentials;
 
 /**
  * Servlet implementation class login
@@ -28,6 +32,9 @@ import db_credentials.mysql_credentials;
 public class login extends HttpServlet implements mysql_credentials {
     private static final long serialVersionUID = 1L;
     private String eMessage;
+
+    @Resource(name = "jdbc/EtaCalculatorDB")
+    private DataSource dataSource;
 
     private Set<String> users;
 
@@ -44,7 +51,7 @@ public class login extends HttpServlet implements mysql_credentials {
 
     /**
      * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
-     *      response)
+     * response)
      */
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException, IOException {
@@ -55,7 +62,7 @@ public class login extends HttpServlet implements mysql_credentials {
 
         loadAuthorizedUsers();
 
-        if(processRequest(username, password)) {
+        if (processRequest(username, password)) {
             json.put("result", "success");
             json.put("username", username);
             json.put("mail", username + "@proofpoint.com");
@@ -64,8 +71,7 @@ public class login extends HttpServlet implements mysql_credentials {
             // setting cookie to expiry in 60 mins
             loginCookie.setMaxAge(60 * 60);
             response.addCookie(loginCookie);
-        }
-        else
+        } else
             json.put("result", eMessage);
 
         response.setContentType("application/json");
@@ -86,7 +92,7 @@ public class login extends HttpServlet implements mysql_credentials {
         env.put(Context.SECURITY_PRINCIPAL, "uid=" + username + ",ou=People,dc=extreme-email,dc=com");
         env.put(Context.SECURITY_CREDENTIALS, password);
 
-        if(!users.contains(username)) {
+        if (!users.contains(username)) {
             eMessage = "Unauthorized User";
             return result;
         }
@@ -95,18 +101,18 @@ public class login extends HttpServlet implements mysql_credentials {
             // Create initial context
             DirContext ctx = new InitialDirContext(env);
 
-            String[] attrIDs = { "mail" };
+            String[] attrIDs = {"mail"};
             // other attributes are: givenName,sn,userPassword, loginShell, etc
             // http://docs.oracle.com/javase/tutorial/jndi/ops/getattrs.html
 
             Attributes answer = ctx.getAttributes(
                     "uid=" + username + ",ou=People,dc=extreme-email,dc=com", attrIDs);
 
-            for (NamingEnumeration ae = answer.getAll(); ae.hasMore();) {
+            for (NamingEnumeration ae = answer.getAll(); ae.hasMore(); ) {
                 Attribute attr = (Attribute) ae.next();
                 //System.out.println("attribute: " + attr.getID());
-				/* Print each value */
-                for (NamingEnumeration e = attr.getAll(); e.hasMore();) {
+                /* Print each value */
+                for (NamingEnumeration e = attr.getAll(); e.hasMore(); ) {
                     //System.out.println("value: " + e.next());
                     mail = e.next().toString();
                 }
@@ -128,32 +134,39 @@ public class login extends HttpServlet implements mysql_credentials {
     private void loadAuthorizedUsers() {
         Connection connect = null;
         try {
-            Class.forName("com.mysql.jdbc.Driver");
-            connect = DriverManager.getConnection(db_url, user_name, password);
+//            Class.forName("com.mysql.jdbc.Driver");
+//            connect = DriverManager.getConnection(db_url, user_name, password);
+            connect = dataSource.getConnection();
+            //connect = db_credentials.DB.getConnection();
 
             String query_selectUsers = "select * from user_info where login = 'Yes';";
 
             PreparedStatement prepSelectUsersStmt = connect.prepareStatement(query_selectUsers);
             ResultSet rs = prepSelectUsersStmt.executeQuery();
 
-            while(rs.next()) {
+            while (rs.next()) {
                 users.add(rs.getString("username"));
             }
 
             rs.close();
             prepSelectUsersStmt.close();
 
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             eMessage = e.getMessage();
             e.printStackTrace();
-        } catch(ClassNotFoundException e) {
-            eMessage = e.getMessage();
+        }
+//        catch (ClassNotFoundException e) {
+//            eMessage = e.getMessage();
+//            e.printStackTrace();
+//        }
+        catch(Exception e) {
             e.printStackTrace();
-        } finally {
+        }
+        finally {
             try {
-                if(connect != null)
+                if (connect != null)
                     connect.close();
-            } catch(SQLException se) {
+            } catch (SQLException se) {
                 eMessage = se.getMessage();
                 se.printStackTrace();
             }

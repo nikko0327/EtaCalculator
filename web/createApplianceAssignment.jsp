@@ -5,14 +5,11 @@
   Time: 9:47 AM
   To change this template use File | Settings | File Templates.
 --%>
-<%@ page import="java.io.DataInputStream" %>
-<%@ page import="java.io.File" %>
-<%@ page import="java.io.FileOutputStream" %>
 <%@include file="navbar.jsp" %>
 
 
 <style>
-    .control-label{
+    .control-label {
         font-weight: bold;
     }
 </style>
@@ -34,7 +31,7 @@
         <div class="control-group">
             <label class="control-label" for="appliance">Appliance</label>
             <div class="controls">
-                <input type="text" id="appliance"  title="Appliance HERE" placeholder="New Appliance" required>
+                <input type="text" required pattern="^([0-9]{1,3}\.){3}[0-9]{1,3}$" id="appliance" title="Must be an IP address." placeholder="New Appliance" required>
             </div>
         </div>
 
@@ -48,7 +45,7 @@
         <div class="control-group">
             <label class="control-label" for="previous">Previous</label>
             <div class="controls">
-                <input type="text" id="previous"  title="Previous HERE" placeholder="Previous">
+                <input type="text" id="previous" title="Previous HERE" placeholder="Previous">
             </div>
         </div>
 
@@ -56,11 +53,14 @@
         <div class="control-group">
             <div class="controls">
                 <button type="submit" class="btn btn-primary btn-lg" id="create">Create</button>
-                <button type="submit" class="btn btn-danger btn-lg" onclick="myFunction()" value="Reset form">Reset</button>
+                <button type="submit" class="btn btn-danger btn-lg" onclick="myFunction()" value="Reset form">Reset
+                </button>
             </div>
         </div>
 
-        <div id="spinner" hidden><center><i class="icon-spinner icon-spin icon-3x"></i></center></div>
+        <div id="spinner" hidden>
+            <center><i class="icon-spinner icon-spin icon-3x"></i></center>
+        </div>
 
         <p id="error-message" class="text-error" hidden><b>Missing Value/s</b></p>
     </form>

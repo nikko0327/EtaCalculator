@@ -5,14 +5,11 @@
   Time: 9:47 AM
   To change this template use File | Settings | File Templates.
 --%>
-<%@ page import="java.io.DataInputStream" %>
-<%@ page import="java.io.File" %>
-<%@ page import="java.io.FileOutputStream" %>
 <%@include file="navbar.jsp" %>
 
 
 <style>
-    .control-label{
+    .control-label {
         font-weight: bold;
     }
 </style>
@@ -34,7 +31,7 @@
         <div class="control-group">
             <label class="control-label" for="customer">Customer</label>
             <div class="controls">
-                <input type="text" id="customer"  title="Appliance HERE" placeholder="New Appliance" required>
+                <input type="text" required pattern="^[^']*$" id="customer" title="Appliance HERE" placeholder="New Appliance" required>
             </div>
         </div>
 
@@ -56,7 +53,7 @@
         <div class="control-group">
             <label class="control-label" for="data_size">Data Size</label>
             <div class="controls">
-                <input type="text" id="data_size"  title="Previous HERE" placeholder="Data Size" required>
+                <input type="number" id="data_size" title="Previous HERE" placeholder="Data Size" required>
             </div>
         </div>
 
@@ -87,14 +84,15 @@
         <div class="control-group">
             <label class="control-label" for="created_date">Created Date</label>
             <div class="controls">
-                <input type="text" id="created_date"  title="Previous HERE" placeholder="Created Date">
+                <input type="text" id="created_date" title="Previous HERE" placeholder="Created Date">
             </div>
         </div>
 
         <div class="control-group">
             <label class="control-label" for="tem">Appliance Count</label>
             <div class="controls">
-                <input type="text" id="appliance_count"  title="Previous HERE" placeholder="Number Of Appliance(s)" required>
+                <input type="number" id="appliance_count" title="Previous HERE" placeholder="Number Of Appliance(s)"
+                       required>
             </div>
         </div>
 
@@ -108,11 +106,14 @@
         <div class="control-group">
             <div class="controls">
                 <button type="submit" class="btn btn-primary btn-lg" id="create">Create</button>
-                <button type="submit" class="btn btn-danger btn-lg" onclick="myFunction()" value="Reset form">Reset</button>
+                <button type="submit" class="btn btn-danger btn-lg" onclick="myFunction()" value="Reset form">Reset
+                </button>
             </div>
         </div>
 
-        <div id="spinner" hidden><center><i class="icon-spinner icon-spin icon-3x"></i></center></div>
+        <div id="spinner" hidden>
+            <center><i class="icon-spinner icon-spin icon-3x"></i></center>
+        </div>
 
         <p id="error-message" class="text-error" hidden><b>Missing Value/s</b></p>
     </form>

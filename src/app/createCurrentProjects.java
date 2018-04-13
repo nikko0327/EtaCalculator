@@ -1,18 +1,19 @@
 package app;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.*;
+import db_credentials.mysql_credentials;
+import net.sf.json.JSONObject;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.*;
 
-import net.sf.json.JSONObject;
-
-import db_credentials.mysql_credentials;
 @WebServlet("/uploadServletCurrent")
 
 public class createCurrentProjects extends HttpServlet implements mysql_credentials {
@@ -31,6 +32,8 @@ public class createCurrentProjects extends HttpServlet implements mysql_credenti
     private String appliance_count;
     private String is_completed;
 
+    @Resource(name="jdbc/EtaCalculatorDB")
+    private DataSource dataSource;
 
     InputStream inputStream;
 
@@ -43,7 +46,7 @@ public class createCurrentProjects extends HttpServlet implements mysql_credenti
 
     /**
      * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
-     *      response)
+     * response)
      */
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException, IOException {
@@ -70,8 +73,7 @@ public class createCurrentProjects extends HttpServlet implements mysql_credenti
 
             response.getWriter().write(latestDrive);
             //System.out.println("latest drive = " + latestDrive);
-        }
-        else {
+        } else {
             JSONObject json = new JSONObject();
             json.put("message", eMessage);
             response.getWriter().write(json.toString());
@@ -87,8 +89,9 @@ public class createCurrentProjects extends HttpServlet implements mysql_credenti
             java.util.Date currentDatetime = new java.util.Date();
             java.sql.Timestamp sqlTime = new Timestamp(currentDatetime.getTime());
 
-            Class.forName("com.mysql.jdbc.Driver");
-            connect = DriverManager.getConnection(db_url, user_name, password);
+//            Class.forName("com.mysql.jdbc.Driver");
+//            connect = DriverManager.getConnection(db_url, user_name, password);
+            connect = dataSource.getConnection();
 
             //Query to count appliances START
             String query_appliance = ""; //Empty variable for appliance count query
@@ -97,7 +100,7 @@ public class createCurrentProjects extends HttpServlet implements mysql_credenti
             PreparedStatement prepSearchDriveStmtAppliance = connect.prepareStatement(query_appliance); //Statement to execute
             ResultSet rsAppliance = prepSearchDriveStmtAppliance.executeQuery(); //Execute statement
             int counter = 0;
-            while(rsAppliance.next()){ //Go through every row and add 1 to counter
+            while (rsAppliance.next()) { //Go through every row and add 1 to counter
                 counter++;
             }
             System.out.println("Appliance Count: " + counter); //Test run
@@ -110,7 +113,7 @@ public class createCurrentProjects extends HttpServlet implements mysql_credenti
             PreparedStatement prepSearchDriveStmtCount = connect.prepareStatement(query_count); //Statement to execute
             ResultSet rsCount = prepSearchDriveStmtCount.executeQuery(); //Execute statement
             int counterUsed = 0;
-            while(rsCount.next()){ //Go through every row and add 1 to counter
+            while (rsCount.next()) { //Go through every row and add 1 to counter
                 int applianceCount = Integer.parseInt(rsCount.getString("appliance_count"));
                 counterUsed = counterUsed + applianceCount;
             }
@@ -118,14 +121,14 @@ public class createCurrentProjects extends HttpServlet implements mysql_credenti
             //Counting appliances in used END
 
             int counterAvailable = counter - counterUsed;
-            System.out.println("Counter Available: "  + counterAvailable);
+            System.out.println("Counter Available: " + counterAvailable);
 
             String query_createSprint;
 
             int checkLimit = counterAvailable + Integer.parseInt(appliance_count);
             System.out.println("CHECK SUM: " + checkLimit);
 
-            if(Integer.parseInt(appliance_count) <= counterAvailable){
+            if (Integer.parseInt(appliance_count) <= counterAvailable) {
                 query_createSprint = "insert into current_project (customer, jira, dc, data_size, import_engr, tem, current_stage, created_date, notes, appliance_count, is_completed) values (?,?,?,?,?,?,?,?,?,?,?);";
 
 
@@ -154,17 +157,19 @@ public class createCurrentProjects extends HttpServlet implements mysql_credenti
                 System.out.println("Can't Add More!!!");
             }
 
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             eMessage = e.getMessage();
             e.printStackTrace();
-        } catch(ClassNotFoundException e) {
-            eMessage = e.getMessage();
-            e.printStackTrace();
-        } finally {
+        }
+//        catch (ClassNotFoundException e) {
+//            eMessage = e.getMessage();
+//            e.printStackTrace();
+//        }
+        finally {
             try {
-                if(connect != null)
+                if (connect != null)
                     connect.close();
-            } catch(SQLException se) {
+            } catch (SQLException se) {
                 eMessage = se.getMessage();
                 se.printStackTrace();
             }
@@ -178,8 +183,9 @@ public class createCurrentProjects extends HttpServlet implements mysql_credenti
         JSONObject json = new JSONObject();
         Connection connect = null;
         try {
-            Class.forName("com.mysql.jdbc.Driver");
-            connect = DriverManager.getConnection(db_url, user_name, password);
+//            Class.forName("com.mysql.jdbc.Driver");
+//            connect = DriverManager.getConnection(db_url, user_name, password);
+            connect = dataSource.getConnection();
 
             String query_getDriveById = "select * from current_project where customer ='" + customer + "';";
 
@@ -200,17 +206,19 @@ public class createCurrentProjects extends HttpServlet implements mysql_credenti
                 json.put("appliance_count", appliance_count);
                 json.put("is_completed", is_completed);
             }
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             eMessage = e.getMessage();
             e.printStackTrace();
-        } catch(ClassNotFoundException e) {
-            eMessage = e.getMessage();
-            e.printStackTrace();
-        } finally {
+        }
+//        catch (ClassNotFoundException e) {
+//            eMessage = e.getMessage();
+//            e.printStackTrace();
+//        }
+        finally {
             try {
-                if(connect != null)
+                if (connect != null)
                     connect.close();
-            } catch(SQLException se) {
+            } catch (SQLException se) {
                 eMessage = se.getMessage();
                 se.printStackTrace();
             }

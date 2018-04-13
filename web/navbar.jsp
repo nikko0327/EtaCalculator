@@ -8,7 +8,6 @@
 
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
          pageEncoding="ISO-8859-1" %>
-<%@ page import="java.sql.*" %>
 
 <!DOCTYPE html>
 <head>
@@ -23,7 +22,7 @@
     <!--  <link href="css/datepicker.css" rel="stylesheet" type="text/css"> -->
 
     <!-- jquery datepicker ui css, used here for datepicker -->
-    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css"/>
 
     <link href="css/font-awesome.css" rel="stylesheet">
 
@@ -61,7 +60,7 @@
             max-width: 700px;
         }
 
-        .container-narrow>hr {
+        .container-narrow > hr {
             margin: 30px 0;
         }
 
@@ -112,30 +111,31 @@
 %>
 
 <body>
-    <div class="container">
-        <div class="masthead">
-            <ul class="nav nav-pills pull-right">
-                <li><a href="#"><i class="icon-user icon-white"></i>Welcome, <%= userName %></a></li>
-                <li><a href="logout.jsp" value="Logout">Logout</a></li>
-            </ul>
-            <h3 class="muted">ETA Calculator  <img src="img/proof.png" alt="Proofpoint Logo" /></h3>
-        </div>
+<div class="container">
+    <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+            <li><a href="#"><i class="icon-user icon-white"></i>Welcome, <%= userName %>
+            </a></li>
+            <li><a href="logout.jsp" value="Logout">Logout</a></li>
+        </ul>
+        <h3 class="muted">ETA Calculator <img src="img/proof.png" alt="Proofpoint Logo"/></h3>
+    </div>
 
-        <div class="navbar navbar-inverse ">
-            <div class="navbar-inner">
-                <div class="container">
-                    <button type="button" class="btn btn-navbar" data-toggle="collapse"
-                            data-target=".nav-collapse">
-                        <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
-                    </button>
+    <div class="navbar navbar-inverse ">
+        <div class="navbar-inner">
+            <div class="container">
+                <button type="button" class="btn btn-navbar" data-toggle="collapse"
+                        data-target=".nav-collapse">
+                    <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
+                </button>
 
-                    <div class="nav-collapse collapse">
-                        <ul class="nav">
-                            <li class=""><a class="" href="currentProjects.jsp">Current Projects</a></li>
-                            <li class=""><a class="" href="upcomingProjects.jsp">Upcoming Projects</a></li>
-                            <li class=""><a class="" href="applianceAssignment.jsp">Appliance Assignments</a></li>
-                        </ul>
-                    </div>
+                <div class="nav-collapse collapse">
+                    <ul class="nav">
+                        <li class=""><a class="" href="currentProjects.jsp">Current Projects</a></li>
+                        <li class=""><a class="" href="upcomingProjects.jsp">Upcoming Projects</a></li>
+                        <li class=""><a class="" href="applianceAssignment.jsp">Appliance Assignments</a></li>
+                    </ul>
                 </div>
             </div>
         </div>
+    </div>

@@ -1,18 +1,22 @@
 package app;
 
+import db_credentials.mysql_credentials;
+import net.sf.json.JSONObject;
+
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import javax.sql.DataSource;
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import db_credentials.mysql_credentials;
-import net.sf.json.JSONObject;
 
 /**
  * Servlet implementation class currentProjects
@@ -21,6 +25,9 @@ public class applianceAssignment extends HttpServlet implements mysql_credential
     private static final long serialVersionUID = 1L;
     private String searchResult;
     private String eMessage;
+
+    @Resource(name = "jdbc/EtaCalculatorDB")
+    private DataSource dataSource;
 
     /**
      * @see HttpServlet#HttpServlet()
@@ -41,7 +48,7 @@ public class applianceAssignment extends HttpServlet implements mysql_credential
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        if(getSearchResult(appliance, current, previous))
+        if (getSearchResult(appliance, current, previous))
             response.getWriter().write(searchResult);
         else
             response.getWriter().write(new JSONObject().put("message", eMessage).toString());
@@ -49,7 +56,7 @@ public class applianceAssignment extends HttpServlet implements mysql_credential
         response.flushBuffer();
     }
 
-    public boolean getSearchResult(String appliance, String current, String previous){
+    public boolean getSearchResult(String appliance, String current, String previous) {
 
         appliance.trim();
         current.trim();
@@ -58,9 +65,10 @@ public class applianceAssignment extends HttpServlet implements mysql_credential
         boolean result = false;
 
         Connection connect = null;
-        try{
-            Class.forName("com.mysql.jdbc.Driver");
-            connect = DriverManager.getConnection(db_url, user_name, password);
+        try {
+//            Class.forName("com.mysql.jdbc.Driver");
+//            connect = DriverManager.getConnection(db_url, user_name, password);
+            connect = dataSource.getConnection();
 
             ArrayList<Map<String, String>> list = new ArrayList<Map<String, String>>();
 
@@ -78,22 +86,21 @@ public class applianceAssignment extends HttpServlet implements mysql_credential
                         "and current <> 'current' " +
                         "and previous <> 'previous' " +
                         "order by current desc;";
-            }
-            else {
+            } else {
                 query_searchDrive = "select * from appliance_assignment where";
 
                 if (!(appliance.equalsIgnoreCase(null) || appliance.equalsIgnoreCase("")))
                     query_searchDrive += " appliance like '%" + appliance + "%'";
 
                 if (!(current.equalsIgnoreCase(null) || current.equalsIgnoreCase(""))) {
-                    if(query_searchDrive.equalsIgnoreCase("select * from appliance_assignment where"))
+                    if (query_searchDrive.equalsIgnoreCase("select * from appliance_assignment where"))
                         query_searchDrive += " current like '%" + current + "%'";
                     else
                         query_searchDrive += " and current like '%" + current + "%'";
                 }
 
                 if (!(previous.equalsIgnoreCase(null) || previous.equalsIgnoreCase(""))) {
-                    if(query_searchDrive.equalsIgnoreCase("select * from appliance_assignment where"))
+                    if (query_searchDrive.equalsIgnoreCase("select * from appliance_assignment where"))
                         query_searchDrive += " previous like '%" + previous + "%'";
                     else
                         query_searchDrive += " and previous like '%" + previous + "%'";
@@ -114,7 +121,7 @@ public class applianceAssignment extends HttpServlet implements mysql_credential
 
             result = true;
 
-            while(rs.next()){
+            while (rs.next()) {
                 Map<String, String> map = new HashMap<String, String>();
 
                 map.put("appliance", rs.getString("appliance"));
@@ -134,17 +141,19 @@ public class applianceAssignment extends HttpServlet implements mysql_credential
             rs.close();
             prepSearchDriveStmt.close();
 
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             eMessage = e.getMessage();
             e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            eMessage = e.getMessage();
-            e.printStackTrace();
-        } finally {
+        }
+//        catch (ClassNotFoundException e) {
+//            eMessage = e.getMessage();
+//            e.printStackTrace();
+//        }
+        finally {
             try {
-                if(connect != null)
+                if (connect != null)
                     connect.close();
-            } catch(SQLException se) {
+            } catch (SQLException se) {
                 eMessage = se.getMessage();
                 se.printStackTrace();
             }

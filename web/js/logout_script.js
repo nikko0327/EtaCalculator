@@ -1,11 +1,11 @@
-$(document).ready(function() {
+$(document).ready(function () {
 
     //Disable back button on login page
     //works on chrome well
     window.history.forward();
 
     //this checks if browser is IE
-    if($.browser.msie) {
+    if ($.browser.msie) {
         $(".container").empty();
 
         msg = "<div class='masthead'><h3 class='muted'>Eta Calculator</h3></div><hr>";

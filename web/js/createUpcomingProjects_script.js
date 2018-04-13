@@ -1,19 +1,19 @@
-$(document).ready(function() {
+$(document).ready(function () {
 
     $('#customer').focus();
 
 
     //For Date Picker START
-    $('#expected_start_month').datepicker({ dateFormat: "yy-mm-dd"});
-    $('#expected_end_month').datepicker({ dateFormat: "yy-mm-dd"});
+    $('#expected_start_month').datepicker({dateFormat: "yy-mm-dd"});
+    $('#expected_end_month').datepicker({dateFormat: "yy-mm-dd"});
     //For Date Picker END
 
-    $.urlParam = function(name) {
+    $.urlParam = function (name) {
         return getFromURL(name);
     }
 
 
-    $("form").on('submit', function() {
+    $("form").on('submit', function () {
         customer_name = $('#customer_name').val();
         sow_created_date = $('#sow_created_date').val();
         estimated_size = $('#estimated_size').val();
@@ -30,25 +30,25 @@ $(document).ready(function() {
 
         $.post("createUpcomingProjects",
             {
-                customer_name : customer_name,
-                sow_created_date : sow_created_date,
-                estimated_size : estimated_size,
-                jira : jira,
-                dc : dc,
-                tem : tem,
-                notes : notes,
-                expected_start_month : expected_start_month,
-                expected_end_month : expected_end_month,
-                updated_date : updated_date,
-                apps_needed : apps_needed
+                customer_name: customer_name,
+                sow_created_date: sow_created_date,
+                estimated_size: estimated_size,
+                jira: jira,
+                dc: dc,
+                tem: tem,
+                notes: notes,
+                expected_start_month: expected_start_month,
+                expected_end_month: expected_end_month,
+                updated_date: updated_date,
+                apps_needed: apps_needed
 
             },
-            function(data){
+            function (data) {
                 $('#spinner').hide();
                 $('#createUpcomingProjects').hide();
                 $('#result').empty();
 
-                if(data.customer_name == undefined) {
+                if (data.customer_name == undefined) {
                     result = '<p><h3>Error:</h3>'
                         + '<br>' + data.message
                         + '</p>';

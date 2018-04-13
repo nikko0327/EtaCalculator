@@ -7,5 +7,6 @@
 --%>
 
 <div class="footer">
-    <strong>Copyright &copy; 2016 <a href="https://www.proofpoint.com">Proofpoint, Inc</a>.</strong> All rights reserved.
+    <strong>Copyright &copy; 2016 <a href="https://www.proofpoint.com">Proofpoint, Inc</a>.</strong> All rights
+    reserved.
 </div>

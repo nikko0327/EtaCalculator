@@ -1,19 +1,20 @@
 package app;
 
+import db_credentials.mysql_credentials;
+import net.sf.json.JSONObject;
+
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
-
-import db_credentials.mysql_credentials;
-import net.sf.json.JSONObject;
 
 
 /**
@@ -23,6 +24,9 @@ public class upcomingProjects extends HttpServlet implements mysql_credentials {
     private static final long serialVersionUID = 1L;
     private String searchResult;
     private String eMessage;
+
+    @Resource(name = "jdbc/EtaCalculatorDB")
+    private DataSource dataSource;
 
     /**
      * @see HttpServlet#HttpServlet()
@@ -39,7 +43,7 @@ public class upcomingProjects extends HttpServlet implements mysql_credentials {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        if(getSearchResult())
+        if (getSearchResult())
             response.getWriter().write(searchResult);
         else
             response.getWriter().write(new JSONObject().put("message", eMessage).toString());
@@ -47,14 +51,15 @@ public class upcomingProjects extends HttpServlet implements mysql_credentials {
         response.flushBuffer();
     }
 
-    public boolean getSearchResult(){
+    public boolean getSearchResult() {
 
         boolean result = false;
 
         Connection connect = null;
-        try{
-            Class.forName("com.mysql.jdbc.Driver");
-            connect = DriverManager.getConnection(db_url, user_name, password);
+        try {
+//            Class.forName("com.mysql.jdbc.Driver");
+//            connect = DriverManager.getConnection(db_url, user_name, password);
+            connect = dataSource.getConnection();
 
             ArrayList<Map<String, String>> list = new ArrayList<Map<String, String>>();
 
@@ -78,7 +83,7 @@ public class upcomingProjects extends HttpServlet implements mysql_credentials {
             PreparedStatement prepSearchDriveStmtAppliance = connect.prepareStatement(query_appliance); //Statement to execute
             ResultSet rsAppliance = prepSearchDriveStmtAppliance.executeQuery(); //Execute statement
             int counter = 0;
-            while(rsAppliance.next()){ //Go through every row and add 1 to counter
+            while (rsAppliance.next()) { //Go through every row and add 1 to counter
                 counter++;
             }
             System.out.println("Appliance Count: " + counter); //Test run
@@ -91,7 +96,7 @@ public class upcomingProjects extends HttpServlet implements mysql_credentials {
             PreparedStatement prepSearchDriveStmtCount = connect.prepareStatement(query_count); //Statement to execute
             ResultSet rsCount = prepSearchDriveStmtCount.executeQuery(); //Execute statement
             int counterUsed = 0;
-            while(rsCount.next()){ //Go through every row and add 1 to counter
+            while (rsCount.next()) { //Go through every row and add 1 to counter
                 int applianceCount = Integer.parseInt(rsCount.getString("appliance_count"));
                 counterUsed = counterUsed + applianceCount;
             }
@@ -100,7 +105,7 @@ public class upcomingProjects extends HttpServlet implements mysql_credentials {
 
             result = true;
 
-            while(rs.next()){
+            while (rs.next()) {
                 Map<String, String> map = new HashMap<String, String>();
 
                 map.put("customer_name", rs.getString("customer_name"));
@@ -114,7 +119,7 @@ public class upcomingProjects extends HttpServlet implements mysql_credentials {
                 map.put("expected_end_month", rs.getString("expected_end_month"));
                 map.put("updated_date", rs.getString("updated_date"));
 
-                if(rs.getString("expected_start_month").contains("-") || rs.getString("expected_end_month").contains("-")){
+                if (rs.getString("expected_start_month").contains("-") || rs.getString("expected_end_month").contains("-")) {
 
                     //Getting days between two dates
                     String dayStart = rs.getString("expected_start_month");
@@ -129,7 +134,7 @@ public class upcomingProjects extends HttpServlet implements mysql_credentials {
                     cal1.setTime(date);
                     date = sdf.parse(dayEnd);
                     cal2.setTime(date);
-                    int numOfDays = daysBetween(cal1.getTime(),cal2.getTime()); // This is the one we need to calculate the appliances needed
+                    int numOfDays = daysBetween(cal1.getTime(), cal2.getTime()); // This is the one we need to calculate the appliances needed
                     String numberOfDaysString = String.valueOf(numOfDays);
                     System.out.println("Days Between " + cal1.getTime() + " and " + cal2.getTime() + ": ");
                     System.out.println("Days= " + numOfDays);
@@ -142,7 +147,7 @@ public class upcomingProjects extends HttpServlet implements mysql_credentials {
                     System.out.println("Date No Padding: " + dateNoPadding);
                     int dateNoMapping = dateNoPadding - 30; // Taking away 30 mapping days
                     System.out.println("With No Mapping: " + dateNoMapping);
-                    double dateNoMappingDivTwo = dateNoMapping /2; // Taking away 30 mapping days
+                    double dateNoMappingDivTwo = dateNoMapping / 2; // Taking away 30 mapping days
                     System.out.println("Divide by 2: " + dateNoMappingDivTwo);
                     double estimatedSize = Double.parseDouble(rs.getString("estimated_size"));
                     System.out.println("Estimated Size: " + estimatedSize);
@@ -154,7 +159,7 @@ public class upcomingProjects extends HttpServlet implements mysql_credentials {
                     //Calculating to get Appliances needed END
                     String finalOutput = String.valueOf(totalNumberOfGigsNeeded); //Final output we need for getting apps needed
                     map.put("apps_needed", finalOutput);
-                } else{
+                } else {
                     map.put("apps_needed", "Dates are not set");
 
                 }
@@ -178,19 +183,21 @@ public class upcomingProjects extends HttpServlet implements mysql_credentials {
             rs.close();
             prepSearchDriveStmt.close();
 
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             eMessage = e.getMessage();
             e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            eMessage = e.getMessage();
-            e.printStackTrace();
-        } catch (ParseException e) {
+        }
+//        catch (ClassNotFoundException e) {
+//            eMessage = e.getMessage();
+//            e.printStackTrace();
+//        }
+        catch (ParseException e) {
             e.printStackTrace();
         } finally {
             try {
-                if(connect != null)
+                if (connect != null)
                     connect.close();
-            } catch(SQLException se) {
+            } catch (SQLException se) {
                 eMessage = se.getMessage();
                 se.printStackTrace();
             }
@@ -198,8 +205,9 @@ public class upcomingProjects extends HttpServlet implements mysql_credentials {
 
         return result;
     }
+
     //Method to calculate day in between dates
-    public int daysBetween(Date d1, Date d2){
-        return (int)( (d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24));
+    public int daysBetween(Date d1, Date d2) {
+        return (int) ((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24));
     }
 }

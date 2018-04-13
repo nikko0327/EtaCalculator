@@ -1,18 +1,18 @@
-$(document).ready(function() {
+$(document).ready(function () {
     //
 
-    $('#sent_date').datepicker({ dateFormat: "yy-mm-dd"});
-    $('#received_date').datepicker({ dateFormat: "yy-mm-dd"}).datepicker('setDate', new Date());
-    $('#created_date').datepicker({ dateFormat: "yy-mm-dd"}).datepicker('setDate', new Date());
+    $('#sent_date').datepicker({dateFormat: "yy-mm-dd"});
+    $('#received_date').datepicker({dateFormat: "yy-mm-dd"}).datepicker('setDate', new Date());
+    $('#created_date').datepicker({dateFormat: "yy-mm-dd"}).datepicker('setDate', new Date());
 
     $('#customer').focus();
 
-    $.urlParam = function(name) {
+    $.urlParam = function (name) {
         return getFromURL(name);
     }
 
 
-    $("form").on('submit', function() {
+    $("form").on('submit', function () {
         customer = $('#customer').val();
         jira = $('#jira').val();
         dc = $('#dc').val();
@@ -29,24 +29,24 @@ $(document).ready(function() {
 
         $.post("createCurrentProjects",
             {
-                customer : customer,
-                jira : jira,
-                dc : dc,
-                data_size : data_size,
-                import_engr : import_engr,
-                tem : tem,
-                current_stage : current_stage,
-                created_date : created_date,
-                notes : notes,
-                appliance_count : appliance_count
+                customer: customer,
+                jira: jira,
+                dc: dc,
+                data_size: data_size,
+                import_engr: import_engr,
+                tem: tem,
+                current_stage: current_stage,
+                created_date: created_date,
+                notes: notes,
+                appliance_count: appliance_count
 
             },
-            function(data){
+            function (data) {
                 $('#spinner').hide();
                 $('#createCurrentProjects').hide();
                 $('#result').empty();
 
-                if(data.customer == undefined) {
+                if (data.customer == undefined) {
                     result = '<p><h3>Error: Exceeded Appliance Limit</h3>'
                         + '<br>' + data.message
                         + '</p>'

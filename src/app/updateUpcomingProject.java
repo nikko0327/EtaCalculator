@@ -1,17 +1,17 @@
 package app;
 
-import java.io.IOException;
-import java.sql.*;
-import java.util.Date;
+import db_credentials.mysql_credentials;
+import net.sf.json.JSONObject;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import net.sf.json.JSONObject;
-
-import db_credentials.mysql_credentials;
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.sql.*;
+import java.util.Date;
 
 
 public class updateUpcomingProject extends HttpServlet implements mysql_credentials {
@@ -29,6 +29,10 @@ public class updateUpcomingProject extends HttpServlet implements mysql_credenti
     private String expected_end_month;
     private String updated_date;
     private String apps_needed;
+
+    @Resource(name = "jdbc/EtaCalculatorDB")
+    private DataSource dataSource;
+
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -38,7 +42,7 @@ public class updateUpcomingProject extends HttpServlet implements mysql_credenti
 
     /**
      * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest request, javax.servlet.http.HttpServletResponse
-     *      response)
+     * response)
      */
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException, IOException {
@@ -57,10 +61,9 @@ public class updateUpcomingProject extends HttpServlet implements mysql_credenti
 
         JSONObject json = new JSONObject();
 
-        if(updateDriveAndAddToHistory()) {
+        if (updateDriveAndAddToHistory()) {
             json.put("result", "success");
-        }
-        else
+        } else
             json.put("result", eMessage);
 
         response.setContentType("application/json");
@@ -74,14 +77,16 @@ public class updateUpcomingProject extends HttpServlet implements mysql_credenti
         boolean result = false;
         Connection connect = null;
         try {
-            Class.forName("com.mysql.jdbc.Driver");
-            connect = DriverManager.getConnection(db_url, user_name, password);
+//            Class.forName("com.mysql.jdbc.Driver");
+//            connect = DriverManager.getConnection(db_url, user_name, password);
+
+            connect = dataSource.getConnection();
 
             Date currentDatetime = new Date();
             Timestamp sqlTime = new Timestamp(currentDatetime.getTime());
 
             String query_updateDrive = "update upcoming_sow set customer_name = ?, estimated_size = ?, jira = ?, dc = ?, tem = ?, notes = ?, expected_start_month = ?, expected_end_month = ?, updated_date = ?, apps_needed = ? " +
-                    "where customer_name = '" + customer_name +"'";
+                    "where customer_name = '" + customer_name + "'";
 
             PreparedStatement prepUpdateDriveStmt = connect.prepareStatement(query_updateDrive);
             prepUpdateDriveStmt.setString(1, customer_name);
@@ -110,17 +115,19 @@ public class updateUpcomingProject extends HttpServlet implements mysql_credenti
             prepUpdateDriveStmt.close();
 
 
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             eMessage = e.getMessage();
             e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            eMessage = e.getMessage();
-            e.printStackTrace();
-        } finally {
+        }
+//        catch (ClassNotFoundException e) {
+//            eMessage = e.getMessage();
+//            e.printStackTrace();
+//        }
+        finally {
             try {
-                if(connect != null)
+                if (connect != null)
                     connect.close();
-            } catch(SQLException se) {
+            } catch (SQLException se) {
                 eMessage = se.getMessage();
                 se.printStackTrace();
             }

@@ -7,12 +7,17 @@ package app;
 import db_credentials.mysql_credentials;
 import net.sf.json.JSONObject;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 
 public class deleteApplianceAssignment extends HttpServlet implements mysql_credentials {
@@ -20,6 +25,9 @@ public class deleteApplianceAssignment extends HttpServlet implements mysql_cred
     private String eMessage;
 
     private String appliance;
+
+    @Resource(name = "jdbc/EtaCalculatorDB")
+    private DataSource dataSource;
 
     /**
      * @see HttpServlet#HttpServlet()
@@ -31,7 +39,7 @@ public class deleteApplianceAssignment extends HttpServlet implements mysql_cred
 
     /**
      * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
-     *      response)
+     * response)
      */
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException, IOException {
@@ -39,7 +47,7 @@ public class deleteApplianceAssignment extends HttpServlet implements mysql_cred
 
         JSONObject json = new JSONObject();
 
-        if(removeDriveAndHistory())
+        if (removeDriveAndHistory())
             json.put("result", "success");
         else
             json.put("result", eMessage);
@@ -55,8 +63,9 @@ public class deleteApplianceAssignment extends HttpServlet implements mysql_cred
 
         Connection connect = null;
         try {
-            Class.forName("com.mysql.jdbc.Driver");
-            connect = DriverManager.getConnection(db_url, user_name, password);
+//            Class.forName("com.mysql.jdbc.Driver");
+//            connect = DriverManager.getConnection(db_url, user_name, password);
+            connect = dataSource.getConnection();
 
             String query_deleteDrive = "delete from appliance_assignment where appliance = '" + appliance + "';";
 
@@ -70,17 +79,19 @@ public class deleteApplianceAssignment extends HttpServlet implements mysql_cred
             prepDeleteDriveStmt.close();
 
 
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             eMessage = e.getMessage();
             e.printStackTrace();
-        } catch(ClassNotFoundException e) {
-            eMessage = e.getMessage();
-            e.printStackTrace();
-        } finally {
+        }
+//        catch (ClassNotFoundException e) {
+//            eMessage = e.getMessage();
+//            e.printStackTrace();
+//        }
+        finally {
             try {
-                if(connect != null)
+                if (connect != null)
                     connect.close();
-            } catch(SQLException se) {
+            } catch (SQLException se) {
                 eMessage = se.getMessage();
                 se.printStackTrace();
             }

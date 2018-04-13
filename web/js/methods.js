@@ -1,8 +1,8 @@
-$(document).ready(function() {
+$(document).ready(function () {
 
     //add startsWith function to the String prototype
     if (typeof String.prototype.startsWith != 'function') {
-        String.prototype.startsWith = function (str){
+        String.prototype.startsWith = function (str) {
             return this.slice(0, str.length) == str;
         };
     }
