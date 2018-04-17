@@ -1,14 +1,11 @@
 package app;
 
-import db_credentials.mysql_credentials;
 import net.sf.json.JSONObject;
 
-import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,13 +18,10 @@ import java.util.Map;
 /**
  * Servlet implementation class currentProjects
  */
-public class applianceAssignment extends HttpServlet implements mysql_credentials {
+public class applianceAssignment extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private String searchResult;
     private String eMessage;
-
-    @Resource(name = "jdbc/EtaCalculatorDB")
-    private DataSource dataSource;
 
     /**
      * @see HttpServlet#HttpServlet()
@@ -66,9 +60,7 @@ public class applianceAssignment extends HttpServlet implements mysql_credential
 
         Connection connect = null;
         try {
-//            Class.forName("com.mysql.jdbc.Driver");
-//            connect = DriverManager.getConnection(db_url, user_name, password);
-            connect = dataSource.getConnection();
+            connect = db_credentials.DB.getConnection();
 
             ArrayList<Map<String, String>> list = new ArrayList<Map<String, String>>();
 
@@ -144,12 +136,7 @@ public class applianceAssignment extends HttpServlet implements mysql_credential
         } catch (SQLException e) {
             eMessage = e.getMessage();
             e.printStackTrace();
-        }
-//        catch (ClassNotFoundException e) {
-//            eMessage = e.getMessage();
-//            e.printStackTrace();
-//        }
-        finally {
+        } finally {
             try {
                 if (connect != null)
                     connect.close();

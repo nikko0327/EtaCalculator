@@ -1,9 +1,7 @@
 package app;
 
-import db_credentials.mysql_credentials;
 import net.sf.json.JSONObject;
 
-import javax.annotation.Resource;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -16,12 +14,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.sql.DataSource;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
@@ -29,12 +23,10 @@ import java.util.Set;
 /**
  * Servlet implementation class login
  */
-public class login extends HttpServlet implements mysql_credentials {
+public class login extends HttpServlet implements db_credentials.mysql_credentials {
+    private static final boolean SPEED_TEST = true;
     private static final long serialVersionUID = 1L;
     private String eMessage;
-
-    @Resource(name = "jdbc/EtaCalculatorDB")
-    private DataSource dataSource;
 
     private Set<String> users;
 
@@ -134,10 +126,27 @@ public class login extends HttpServlet implements mysql_credentials {
     private void loadAuthorizedUsers() {
         Connection connect = null;
         try {
-//            Class.forName("com.mysql.jdbc.Driver");
-//            connect = DriverManager.getConnection(db_url, user_name, password);
-            connect = dataSource.getConnection();
-            //connect = db_credentials.DB.getConnection();
+
+            // Change the boolean at the top to see the time elapsed for fetching the connection.
+            if (SPEED_TEST) {
+                long startTime = 0;
+                long endTime = 0;
+
+                // Driver Manager
+                startTime = System.currentTimeMillis();
+                Class.forName("com.mysql.jdbc.Driver");
+                connect = DriverManager.getConnection(db_url, user_name, password);
+                endTime = System.currentTimeMillis();
+                System.out.println("Time for DriverManager: " + (endTime - startTime));
+
+                // DataSource pooling
+                startTime = System.currentTimeMillis();
+                connect = db_credentials.DB.getConnection();
+                endTime = System.currentTimeMillis();
+                System.out.println("Time for DataSource: " + (endTime - startTime));
+            }
+
+            connect = db_credentials.DB.getConnection();
 
             String query_selectUsers = "select * from user_info where login = 'Yes';";
 
@@ -154,15 +163,9 @@ public class login extends HttpServlet implements mysql_credentials {
         } catch (SQLException e) {
             eMessage = e.getMessage();
             e.printStackTrace();
-        }
-//        catch (ClassNotFoundException e) {
-//            eMessage = e.getMessage();
-//            e.printStackTrace();
-//        }
-        catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
-        }
-        finally {
+        } finally {
             try {
                 if (connect != null)
                     connect.close();

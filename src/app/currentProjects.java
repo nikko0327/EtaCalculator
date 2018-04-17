@@ -10,10 +10,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.Date;
 
 /**
  * Servlet implementation class currentProjects
@@ -24,7 +26,7 @@ public class currentProjects extends HttpServlet implements mysql_credentials {
     private String eMessage;
     int applianceCounter = 0;
 
-    @Resource(name="jdbc/EtaCalculatorDB")
+    @Resource(name = "jdbc/EtaCalculatorDB")
     private DataSource dataSource;
 
     /**
@@ -56,9 +58,7 @@ public class currentProjects extends HttpServlet implements mysql_credentials {
 
         Connection connect = null;
         try {
-//            Class.forName("com.mysql.jdbc.Driver");
-//            connect = DriverManager.getConnection(db_url, user_name, password);
-            connect = dataSource.getConnection();
+            connect = db_credentials.DB.getConnection();
 
             ArrayList<Map<String, String>> list = new ArrayList<Map<String, String>>();
 
