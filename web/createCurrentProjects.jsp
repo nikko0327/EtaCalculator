@@ -31,7 +31,7 @@
         <div class="control-group">
             <label class="control-label" for="customer">Customer</label>
             <div class="controls">
-                <input type="text" required pattern="^[^']*$" id="customer" title="Appliance HERE" placeholder="New Appliance" required>
+                <input type="text" required pattern="^[^']*$" id="customer" title="No quotations allowed" placeholder="New Appliance" required>
             </div>
         </div>
 
@@ -91,7 +91,7 @@
         <div class="control-group">
             <label class="control-label" for="tem">Appliance Count</label>
             <div class="controls">
-                <input type="number" id="appliance_count" title="Previous HERE" placeholder="Number Of Appliance(s)"
+                <input type="number" id="appliance_count" title="Previous HERE" placeholder="Number of Appliance(s)"
                        required>
             </div>
         </div>
