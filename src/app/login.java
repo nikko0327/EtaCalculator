@@ -2,6 +2,7 @@ package app;
 
 import net.sf.json.JSONObject;
 
+import javax.annotation.Resource;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -14,6 +15,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.*;
 import java.util.HashSet;
@@ -24,11 +26,14 @@ import java.util.Set;
  * Servlet implementation class login
  */
 public class login extends HttpServlet implements db_credentials.mysql_credentials {
-    private static final boolean SPEED_TEST = true;
+    private static final boolean SPEED_TEST = false;
     private static final long serialVersionUID = 1L;
     private String eMessage;
 
     private Set<String> users;
+
+    @Resource(name = "jdbc/EtaCalculatorDB")
+    private DataSource dataSource;
 
     /**
      * @see HttpServlet#HttpServlet()
@@ -129,8 +134,18 @@ public class login extends HttpServlet implements db_credentials.mysql_credentia
 
             // Change the boolean at the top to see the time elapsed for fetching the connection.
             if (SPEED_TEST) {
+                System.out.println("Testing loadAuthorizedUsers");
                 long startTime = 0;
                 long endTime = 0;
+
+                // DataSource pooling
+                startTime = System.currentTimeMillis();
+                connect = db_credentials.DB.getConnection();
+                endTime = System.currentTimeMillis();
+                System.out.println("First load: time for static DataSource: " + (endTime - startTime));
+                connect.close();
+
+                System.out.println("--- First load gets rid of bias, first connection call takes longer ---");
 
                 // Driver Manager
                 startTime = System.currentTimeMillis();
@@ -138,15 +153,24 @@ public class login extends HttpServlet implements db_credentials.mysql_credentia
                 connect = DriverManager.getConnection(db_url, user_name, password);
                 endTime = System.currentTimeMillis();
                 System.out.println("Time for DriverManager: " + (endTime - startTime));
+                connect.close();
 
                 // DataSource pooling
                 startTime = System.currentTimeMillis();
                 connect = db_credentials.DB.getConnection();
                 endTime = System.currentTimeMillis();
-                System.out.println("Time for DataSource: " + (endTime - startTime));
+                System.out.println("Time for static DataSource: " + (endTime - startTime));
+                connect.close();
+
+                // Local resource tag
+                startTime = System.currentTimeMillis();
+                connect = dataSource.getConnection();
+                endTime = System.currentTimeMillis();
+                System.out.println("Time for local resource tag: " + (endTime - startTime));
+                connect.close();
             }
 
-            connect = db_credentials.DB.getConnection();
+            connect = dataSource.getConnection();
 
             String query_selectUsers = "select * from user_info where login = 'Yes';";
 

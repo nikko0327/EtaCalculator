@@ -1,8 +1,5 @@
 package db_credentials;
 
-import javax.annotation.Resource;
-import javax.sql.DataSource;
-
 public interface mysql_credentials {
 
     final String mysql_driver = "com.mysql.jdbc.Driver";

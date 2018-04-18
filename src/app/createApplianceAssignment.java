@@ -1,6 +1,5 @@
 package app;
 
-import db_credentials.mysql_credentials;
 import net.sf.json.JSONObject;
 
 import javax.annotation.Resource;
@@ -16,7 +15,7 @@ import java.sql.*;
 
 @WebServlet("/uploadServlet12")
 
-public class createApplianceAssignment extends HttpServlet implements mysql_credentials {
+public class createApplianceAssignment extends HttpServlet {
     //    private static final long serialVersionUID = 1L;
     private String eMessage;
 
@@ -70,12 +69,11 @@ public class createApplianceAssignment extends HttpServlet implements mysql_cred
 
         boolean result = false;
         Connection connect = null;
+        PreparedStatement prepCreateSprintStmt = null;
         try {
             java.util.Date currentDatetime = new java.util.Date();
             java.sql.Timestamp sqlTime = new Timestamp(currentDatetime.getTime());
 
-//            Class.forName("com.mysql.jdbc.Driver");
-//            connect = DriverManager.getConnection(db_url, user_name, password);
             connect = dataSource.getConnection();
 
             String query_createSprint;
@@ -83,7 +81,7 @@ public class createApplianceAssignment extends HttpServlet implements mysql_cred
             query_createSprint = "insert into appliance_assignment (appliance, current, previous) values (?,?,?);";
 
 
-            PreparedStatement prepCreateSprintStmt = connect.prepareStatement(query_createSprint);
+            prepCreateSprintStmt = connect.prepareStatement(query_createSprint);
 
             prepCreateSprintStmt.setString(1, appliance);
             prepCreateSprintStmt.setString(2, current);
@@ -94,21 +92,17 @@ public class createApplianceAssignment extends HttpServlet implements mysql_cred
             System.out.println("Create drive: " + query_createSprint);
 
             result = true;
-
-            prepCreateSprintStmt.close();
-
         } catch (SQLException e) {
             eMessage = e.getMessage();
             e.printStackTrace();
-        }
-//        catch (ClassNotFoundException e) {
-//            eMessage = e.getMessage();
-//            e.printStackTrace();
-//        }
-        finally {
+        } finally {
             try {
-                if (connect != null)
+                if (connect != null) {
                     connect.close();
+                }
+                if (prepCreateSprintStmt != null) {
+                    prepCreateSprintStmt.close();
+                }
             } catch (SQLException se) {
                 eMessage = se.getMessage();
                 se.printStackTrace();
@@ -122,15 +116,16 @@ public class createApplianceAssignment extends HttpServlet implements mysql_cred
 
         JSONObject json = new JSONObject();
         Connection connect = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+
         try {
-            Class.forName("com.mysql.jdbc.Driver");
-            connect = DriverManager.getConnection(db_url, user_name, password);
+            connect = dataSource.getConnection();
 
             String query_getDriveById = "select * from appliance_assignment where appliance ='" + appliance + "';";
 
-            PreparedStatement prepStmt = connect
-                    .prepareStatement(query_getDriveById);
-            ResultSet rs = prepStmt.executeQuery();
+            prepStmt = connect.prepareStatement(query_getDriveById);
+            rs = prepStmt.executeQuery();
 
             while (rs.next()) {
                 json.put("appliance", appliance);
@@ -140,13 +135,17 @@ public class createApplianceAssignment extends HttpServlet implements mysql_cred
         } catch (SQLException e) {
             eMessage = e.getMessage();
             e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            eMessage = e.getMessage();
-            e.printStackTrace();
         } finally {
             try {
-                if (connect != null)
+                if (connect != null) {
                     connect.close();
+                }
+                if (prepStmt != null) {
+                    prepStmt.close();
+                }
+                if (rs != null) {
+                    rs.close();
+                }
             } catch (SQLException se) {
                 eMessage = se.getMessage();
                 se.printStackTrace();

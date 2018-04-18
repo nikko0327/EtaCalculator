@@ -1,6 +1,5 @@
 package app;
 
-import db_credentials.mysql_credentials;
 import net.sf.json.JSONObject;
 
 import javax.annotation.Resource;
@@ -13,7 +12,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.Date;
 
-public class updateApplianceAssignment extends HttpServlet implements mysql_credentials {
+public class updateApplianceAssignment extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private String eMessage;
 
@@ -59,8 +58,6 @@ public class updateApplianceAssignment extends HttpServlet implements mysql_cred
         boolean result = false;
         Connection connect = null;
         try {
-//            Class.forName("com.mysql.jdbc.Driver");
-//            connect = DriverManager.getConnection(db_url, user_name, password);
             connect = dataSource.getConnection();
 
             Date currentDatetime = new Date();
@@ -91,12 +88,7 @@ public class updateApplianceAssignment extends HttpServlet implements mysql_cred
         } catch (SQLException e) {
             eMessage = e.getMessage();
             e.printStackTrace();
-        }
-//        catch (ClassNotFoundException e) {
-//            eMessage = e.getMessage();
-//            e.printStackTrace();
-//        }
-        finally {
+        } finally {
             try {
                 if (connect != null)
                     connect.close();

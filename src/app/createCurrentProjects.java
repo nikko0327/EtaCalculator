@@ -1,6 +1,5 @@
 package app;
 
-import db_credentials.mysql_credentials;
 import net.sf.json.JSONObject;
 
 import javax.annotation.Resource;
@@ -16,7 +15,7 @@ import java.sql.*;
 
 @WebServlet("/uploadServletCurrent")
 
-public class createCurrentProjects extends HttpServlet implements mysql_credentials {
+public class createCurrentProjects extends HttpServlet {
     //    private static final long serialVersionUID = 1L;
     private String eMessage;
 
@@ -32,7 +31,7 @@ public class createCurrentProjects extends HttpServlet implements mysql_credenti
     private String appliance_count;
     private String is_completed;
 
-    @Resource(name="jdbc/EtaCalculatorDB")
+    @Resource(name = "jdbc/EtaCalculatorDB")
     private DataSource dataSource;
 
     InputStream inputStream;
@@ -50,7 +49,6 @@ public class createCurrentProjects extends HttpServlet implements mysql_credenti
      */
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException, IOException {
-
         customer = request.getParameter("customer");
         jira = request.getParameter("jira");
         dc = request.getParameter("dc");
@@ -85,20 +83,26 @@ public class createCurrentProjects extends HttpServlet implements mysql_credenti
     private boolean createDriveAndHistory() {
         boolean result = false;
         Connection connect = null;
+        PreparedStatement prepSearchDriveStmtAppliance = null;
+        ResultSet rsAppliance = null;
+        PreparedStatement prepSearchDriveStmtCount = null;
+        ResultSet rsCount = null;
+        PreparedStatement prepCreateSprintStmt = null;
+
         try {
             java.util.Date currentDatetime = new java.util.Date();
             java.sql.Timestamp sqlTime = new Timestamp(currentDatetime.getTime());
 
-//            Class.forName("com.mysql.jdbc.Driver");
-//            connect = DriverManager.getConnection(db_url, user_name, password);
             connect = dataSource.getConnection();
 
-            //Query to count appliances START
+            // Query to count appliances START
             String query_appliance = ""; //Empty variable for appliance count query
             query_appliance = "select * from appliance_assignment"; //Setting query for appliance count
             System.out.println("Search drive: " + query_appliance); //Test run
-            PreparedStatement prepSearchDriveStmtAppliance = connect.prepareStatement(query_appliance); //Statement to execute
-            ResultSet rsAppliance = prepSearchDriveStmtAppliance.executeQuery(); //Execute statement
+
+            prepSearchDriveStmtAppliance = connect.prepareStatement(query_appliance); //Statement to execute
+            rsAppliance = prepSearchDriveStmtAppliance.executeQuery(); //Execute statement
+
             int counter = 0;
             while (rsAppliance.next()) { //Go through every row and add 1 to counter
                 counter++;
@@ -110,8 +114,10 @@ public class createCurrentProjects extends HttpServlet implements mysql_credenti
             String query_count = ""; //Empty variable for appliance count query
             query_count = "select * from current_project"; //Setting query for appliance count
             System.out.println("Search drive: " + query_count); //Test run
-            PreparedStatement prepSearchDriveStmtCount = connect.prepareStatement(query_count); //Statement to execute
-            ResultSet rsCount = prepSearchDriveStmtCount.executeQuery(); //Execute statement
+
+            prepSearchDriveStmtCount = connect.prepareStatement(query_count); //Statement to execute
+            rsCount = prepSearchDriveStmtCount.executeQuery(); //Execute statement
+
             int counterUsed = 0;
             while (rsCount.next()) { //Go through every row and add 1 to counter
                 int applianceCount = Integer.parseInt(rsCount.getString("appliance_count"));
@@ -131,8 +137,7 @@ public class createCurrentProjects extends HttpServlet implements mysql_credenti
             if (Integer.parseInt(appliance_count) <= counterAvailable) {
                 query_createSprint = "insert into current_project (customer, jira, dc, data_size, import_engr, tem, current_stage, created_date, notes, appliance_count, is_completed) values (?,?,?,?,?,?,?,?,?,?,?);";
 
-
-                PreparedStatement prepCreateSprintStmt = connect.prepareStatement(query_createSprint);
+                prepCreateSprintStmt = connect.prepareStatement(query_createSprint);
 
                 prepCreateSprintStmt.setString(1, customer);
                 prepCreateSprintStmt.setString(2, jira);
@@ -151,24 +156,35 @@ public class createCurrentProjects extends HttpServlet implements mysql_credenti
                 System.out.println("Create drive: " + query_createSprint);
 
                 result = true;
-
-                prepCreateSprintStmt.close();
             } else {
                 System.out.println("Can't Add More!!!");
             }
-
         } catch (SQLException e) {
             eMessage = e.getMessage();
             e.printStackTrace();
-        }
-//        catch (ClassNotFoundException e) {
-//            eMessage = e.getMessage();
-//            e.printStackTrace();
-//        }
-        finally {
+        } catch (Exception e) {
+            eMessage = e.getMessage();
+            e.printStackTrace();
+        } finally {
             try {
-                if (connect != null)
+                if (connect != null) {
                     connect.close();
+                }
+                if (prepSearchDriveStmtAppliance != null) {
+                    prepSearchDriveStmtAppliance.close();
+                }
+                if (rsAppliance != null) {
+                    rsAppliance.close();
+                }
+                if (prepSearchDriveStmtCount != null) {
+                    prepSearchDriveStmtCount.close();
+                }
+                if (rsCount != null) {
+                    rsCount.close();
+                }
+                if (prepCreateSprintStmt != null) {
+                    prepCreateSprintStmt.close();
+                }
             } catch (SQLException se) {
                 eMessage = se.getMessage();
                 se.printStackTrace();
@@ -182,16 +198,16 @@ public class createCurrentProjects extends HttpServlet implements mysql_credenti
 
         JSONObject json = new JSONObject();
         Connection connect = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+
         try {
-//            Class.forName("com.mysql.jdbc.Driver");
-//            connect = DriverManager.getConnection(db_url, user_name, password);
             connect = dataSource.getConnection();
 
             String query_getDriveById = "select * from current_project where customer ='" + customer + "';";
 
-            PreparedStatement prepStmt = connect
-                    .prepareStatement(query_getDriveById);
-            ResultSet rs = prepStmt.executeQuery();
+            prepStmt = connect.prepareStatement(query_getDriveById);
+            rs = prepStmt.executeQuery();
 
             while (rs.next()) {
                 json.put("customer", customer);
@@ -209,15 +225,20 @@ public class createCurrentProjects extends HttpServlet implements mysql_credenti
         } catch (SQLException e) {
             eMessage = e.getMessage();
             e.printStackTrace();
-        }
-//        catch (ClassNotFoundException e) {
-//            eMessage = e.getMessage();
-//            e.printStackTrace();
-//        }
-        finally {
+        } catch (Exception e) {
+            eMessage = e.getMessage();
+            e.printStackTrace();
+        } finally {
             try {
-                if (connect != null)
+                if (connect != null) {
                     connect.close();
+                }
+                if (prepStmt != null) {
+                    prepStmt.close();
+                }
+                if (rs != null) {
+                    rs.close();
+                }
             } catch (SQLException se) {
                 eMessage = se.getMessage();
                 se.printStackTrace();

@@ -4,7 +4,6 @@ package app;
  * Created by nlee on 8/15/16.
  */
 
-import db_credentials.mysql_credentials;
 import net.sf.json.JSONObject;
 
 import javax.annotation.Resource;
@@ -15,12 +14,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 
-public class deleteCurrentProject extends HttpServlet implements mysql_credentials {
+public class deleteCurrentProject extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private String eMessage;
 
@@ -63,8 +61,6 @@ public class deleteCurrentProject extends HttpServlet implements mysql_credentia
 
         Connection connect = null;
         try {
-//            Class.forName("com.mysql.jdbc.Driver");
-//            connect = DriverManager.getConnection(db_url, user_name, password);
             connect = dataSource.getConnection();
 
             String query_deleteDrive = "delete from current_project where customer = '" + customer + "';";
@@ -82,12 +78,7 @@ public class deleteCurrentProject extends HttpServlet implements mysql_credentia
         } catch (SQLException e) {
             eMessage = e.getMessage();
             e.printStackTrace();
-        }
-//        catch (ClassNotFoundException e) {
-//            eMessage = e.getMessage();
-//            e.printStackTrace();
-//        }
-        finally {
+        } finally {
             try {
                 if (connect != null)
                     connect.close();

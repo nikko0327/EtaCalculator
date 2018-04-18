@@ -1,6 +1,5 @@
 package app;
 
-import db_credentials.mysql_credentials;
 import net.sf.json.JSONObject;
 
 import javax.annotation.Resource;
@@ -15,8 +14,8 @@ import java.io.InputStream;
 import java.sql.*;
 
 @WebServlet("/createUpcomingProject")
-public class createUpcomingProjects extends HttpServlet implements mysql_credentials {
-    //    private static final long serialVersionUID = 1L;
+public class createUpcomingProjects extends HttpServlet {
+    // private static final long serialVersionUID = 1L;
     private String eMessage;
 
     private String customer_name;
@@ -33,7 +32,7 @@ public class createUpcomingProjects extends HttpServlet implements mysql_credent
     private String apps_needed;
     private String lastUpdated;
 
-    @Resource(name="jdbc/EtaCalculatorDB")
+    @Resource(name = "jdbc/EtaCalculatorDB")
     private DataSource dataSource;
 
     InputStream inputStream;
@@ -86,7 +85,6 @@ public class createUpcomingProjects extends HttpServlet implements mysql_credent
     }
 
     private boolean createDriveAndHistory() {
-
         boolean result = false;
         Connection connect = null;
         try {
@@ -94,15 +92,11 @@ public class createUpcomingProjects extends HttpServlet implements mysql_credent
             java.sql.Timestamp sqlTime = new Timestamp(currentDatetime.getTime());
             lastUpdated = sqlTime.toString();
 
-//            Class.forName("com.mysql.jdbc.Driver");
-//            connect = DriverManager.getConnection(db_url, user_name, password);
-
             connect = dataSource.getConnection();
 
             String query_createSprint;
 
             query_createSprint = "insert into upcoming_sow (customer_name, sow_created_date, estimated_size, jira, dc, tem, notes, expected_start_month, expected_end_month, updated_date, apps_needed) values (?,?,?,?,?,?,?,?,?,?,?);";
-
 
             PreparedStatement prepCreateSprintStmt = connect.prepareStatement(query_createSprint);
 
@@ -122,23 +116,16 @@ public class createUpcomingProjects extends HttpServlet implements mysql_credent
 
             System.out.println("Create drive: " + query_createSprint);
 
-
             result = true;
 
             prepCreateSprintStmt.close();
-//            prepCreateHistoryStmt.close();
-
-//            sendEmailNotification();
+            // prepCreateHistoryStmt.close();
+            // sendEmailNotification();
 
         } catch (SQLException e) {
             eMessage = e.getMessage();
             e.printStackTrace();
-        }
-//        catch (ClassNotFoundException e) {
-////            eMessage = e.getMessage();
-////            e.printStackTrace();
-////        }
-        finally {
+        } finally {
             try {
                 if (connect != null)
                     connect.close();
@@ -147,7 +134,6 @@ public class createUpcomingProjects extends HttpServlet implements mysql_credent
                 se.printStackTrace();
             }
         }
-
         return result;
     }
 
@@ -156,8 +142,6 @@ public class createUpcomingProjects extends HttpServlet implements mysql_credent
         JSONObject json = new JSONObject();
         Connection connect = null;
         try {
-//            Class.forName("com.mysql.jdbc.Driver");
-//            connect = DriverManager.getConnection(db_url, user_name, password);
             connect = dataSource.getConnection();
 
             java.util.Date currentDatetime = new java.util.Date();
@@ -186,12 +170,7 @@ public class createUpcomingProjects extends HttpServlet implements mysql_credent
         } catch (SQLException e) {
             eMessage = e.getMessage();
             e.printStackTrace();
-        }
-//        catch (ClassNotFoundException e) {
-//            eMessage = e.getMessage();
-//            e.printStackTrace();
-//        }
-        finally {
+        } finally {
             try {
                 if (connect != null)
                     connect.close();

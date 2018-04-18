@@ -1,6 +1,5 @@
 package app;
 
-import db_credentials.mysql_credentials;
 import net.sf.json.JSONObject;
 
 import javax.annotation.Resource;
@@ -13,8 +12,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.Date;
 
-
-public class updateUpcomingProject extends HttpServlet implements mysql_credentials {
+public class updateUpcomingProject extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private String eMessage;
 
@@ -77,8 +75,6 @@ public class updateUpcomingProject extends HttpServlet implements mysql_credenti
         boolean result = false;
         Connection connect = null;
         try {
-//            Class.forName("com.mysql.jdbc.Driver");
-//            connect = DriverManager.getConnection(db_url, user_name, password);
 
             connect = dataSource.getConnection();
 
@@ -90,7 +86,7 @@ public class updateUpcomingProject extends HttpServlet implements mysql_credenti
 
             PreparedStatement prepUpdateDriveStmt = connect.prepareStatement(query_updateDrive);
             prepUpdateDriveStmt.setString(1, customer_name);
-//            prepUpdateDriveStmt.setString(2, sow_created_date);
+            //prepUpdateDriveStmt.setString(2, sow_created_date);
             prepUpdateDriveStmt.setString(2, estimated_size);
             prepUpdateDriveStmt.setString(3, jira);
             prepUpdateDriveStmt.setString(4, dc);
@@ -118,12 +114,7 @@ public class updateUpcomingProject extends HttpServlet implements mysql_credenti
         } catch (SQLException e) {
             eMessage = e.getMessage();
             e.printStackTrace();
-        }
-//        catch (ClassNotFoundException e) {
-//            eMessage = e.getMessage();
-//            e.printStackTrace();
-//        }
-        finally {
+        } finally {
             try {
                 if (connect != null)
                     connect.close();

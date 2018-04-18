@@ -1,6 +1,5 @@
 package db_credentials;
 
-
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
@@ -20,6 +19,7 @@ public abstract class DB implements mysql_credentials {
             Context envContext = (Context) init.lookup("java:comp/env");
             DataSource ds = (DataSource) envContext.lookup("jdbc/EtaCalculatorDB");
             c = ds.getConnection();
+
             // System.out.println("Connection via DataSource successful.");
 
         } catch (SQLException sql) {

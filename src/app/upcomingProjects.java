@@ -1,6 +1,5 @@
 package app;
 
-import db_credentials.mysql_credentials;
 import net.sf.json.JSONObject;
 
 import javax.annotation.Resource;
@@ -22,7 +21,7 @@ import java.util.*;
 /**
  * Servlet implementation class currentProjects
  */
-public class upcomingProjects extends HttpServlet implements mysql_credentials {
+public class upcomingProjects extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private String searchResult;
     private String eMessage;
@@ -59,8 +58,6 @@ public class upcomingProjects extends HttpServlet implements mysql_credentials {
 
         Connection connect = null;
         try {
-//            Class.forName("com.mysql.jdbc.Driver");
-//            connect = DriverManager.getConnection(db_url, user_name, password);
             connect = dataSource.getConnection();
 
             ArrayList<Map<String, String>> list = new ArrayList<Map<String, String>>();
@@ -69,7 +66,7 @@ public class upcomingProjects extends HttpServlet implements mysql_credentials {
 
 
             //get all drives except the ones returned to customer
-//                query_searchDrive = "select * from drive_info";
+            // query_searchDrive = "select * from drive_info";
             query_searchDrive = "select * from upcoming_sow";
 
 
@@ -188,12 +185,7 @@ public class upcomingProjects extends HttpServlet implements mysql_credentials {
         } catch (SQLException e) {
             eMessage = e.getMessage();
             e.printStackTrace();
-        }
-//        catch (ClassNotFoundException e) {
-//            eMessage = e.getMessage();
-//            e.printStackTrace();
-//        }
-        catch (ParseException e) {
+        } catch (ParseException e) {
             e.printStackTrace();
         } finally {
             try {

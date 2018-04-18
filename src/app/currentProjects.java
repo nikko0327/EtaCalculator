@@ -1,6 +1,5 @@
 package app;
 
-import db_credentials.mysql_credentials;
 import net.sf.json.JSONObject;
 
 import javax.annotation.Resource;
@@ -20,7 +19,7 @@ import java.util.*;
 /**
  * Servlet implementation class currentProjects
  */
-public class currentProjects extends HttpServlet implements mysql_credentials {
+public class currentProjects extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private String searchResult;
     private String eMessage;
@@ -57,8 +56,9 @@ public class currentProjects extends HttpServlet implements mysql_credentials {
         boolean result = false;
 
         Connection connect = null;
+
         try {
-            connect = db_credentials.DB.getConnection();
+            connect = dataSource.getConnection();
 
             ArrayList<Map<String, String>> list = new ArrayList<Map<String, String>>();
 
@@ -165,8 +165,7 @@ public class currentProjects extends HttpServlet implements mysql_credentials {
                     System.out.println("Between: " + daysBetween(calendar.getTime()));
                     // ./Added for Closing Date
                 }
-//                map.put("closing_date", date);
-
+                // map.put("closing_date", date);
                 list.add(map);
             }
 
@@ -186,12 +185,10 @@ public class currentProjects extends HttpServlet implements mysql_credentials {
         } catch (SQLException e) {
             eMessage = e.getMessage();
             e.printStackTrace();
-        }
-//        catch (ClassNotFoundException e) {
-//            eMessage = e.getMessage();
-//            e.printStackTrace();
-//        }
-        finally {
+        } catch (Exception e) {
+            eMessage = e.getMessage();
+            e.printStackTrace();
+        } finally {
             try {
                 if (connect != null)
                     connect.close();

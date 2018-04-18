@@ -2,10 +2,12 @@ package app;
 
 import net.sf.json.JSONObject;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -22,6 +24,9 @@ public class applianceAssignment extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private String searchResult;
     private String eMessage;
+
+    @Resource(name = "jdbc/EtaCalculatorDB")
+    private DataSource dataSource;
 
     /**
      * @see HttpServlet#HttpServlet()
@@ -52,27 +57,31 @@ public class applianceAssignment extends HttpServlet {
 
     public boolean getSearchResult(String appliance, String current, String previous) {
 
-        appliance.trim();
-        current.trim();
-        previous.trim();
+        appliance = appliance.trim();
+        current = current.trim();
+        previous = previous.trim();
 
         boolean result = false;
 
         Connection connect = null;
+        PreparedStatement prepSearchDriveStmt = null;
+        ResultSet rs = null;
+
         try {
-            connect = db_credentials.DB.getConnection();
+
+            connect = dataSource.getConnection();
 
             ArrayList<Map<String, String>> list = new ArrayList<Map<String, String>>();
 
             String query_searchDrive = "";
 
-
-//            For Search
+            // For Search
 
             if ((appliance.equalsIgnoreCase(null) || appliance.equalsIgnoreCase(""))
                     && (current.equalsIgnoreCase(null) || current.equalsIgnoreCase(""))
                     && (previous.equalsIgnoreCase(null) || previous.equalsIgnoreCase(""))) {
-                //get all drives except the ones returned to customer
+
+                // get all drives except the ones returned to customer
                 query_searchDrive = "select * from appliance_assignment " +
                         "where appliance <> 'appliance' " +
                         "and current <> 'current' " +
@@ -101,15 +110,14 @@ public class applianceAssignment extends HttpServlet {
                 query_searchDrive += " order by current desc;";
             }
 
-            //get all drives except the ones returned to customer
-//                query_searchDrive = "select * from drive_info";
-//            query_searchDrive = "select * from appliance_assignment";
-
+            // get all drives except the ones returned to customer
+            // query_searchDrive = "select * from drive_info";
+            // query_searchDrive = "select * from appliance_assignment";
 
             System.out.println("Search drive: " + query_searchDrive);
 
-            PreparedStatement prepSearchDriveStmt = connect.prepareStatement(query_searchDrive);
-            ResultSet rs = prepSearchDriveStmt.executeQuery();
+            prepSearchDriveStmt = connect.prepareStatement(query_searchDrive);
+            rs = prepSearchDriveStmt.executeQuery();
 
             result = true;
 
@@ -130,16 +138,23 @@ public class applianceAssignment extends HttpServlet {
 
             searchResult = json.toString();
 
-            rs.close();
-            prepSearchDriveStmt.close();
-
         } catch (SQLException e) {
+            eMessage = e.getMessage();
+            e.printStackTrace();
+        } catch (Exception e) {
             eMessage = e.getMessage();
             e.printStackTrace();
         } finally {
             try {
-                if (connect != null)
+                if (connect != null) {
                     connect.close();
+                }
+                if (rs != null) {
+                    rs.close();
+                }
+                if (prepSearchDriveStmt != null) {
+                    prepSearchDriveStmt.close();
+                }
             } catch (SQLException se) {
                 eMessage = se.getMessage();
                 se.printStackTrace();
