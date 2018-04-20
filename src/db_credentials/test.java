@@ -22,6 +22,7 @@ public class test {
 
         System.out.println(dateFormat.format(date));
 
+        System.out.println(Integer.parseInt(null));
 
     }
 

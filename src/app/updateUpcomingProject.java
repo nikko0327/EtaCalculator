@@ -10,23 +10,25 @@ import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.*;
-import java.util.Date;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 public class updateUpcomingProject extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private String eMessage;
 
     private String customer_name;
-    private String sow_created_date;
-    private String estimated_size;
+    //private Date sow_created_date;
+    private int estimated_size;
     private String jira;
     private String dc;
     private String tem;
     private String notes;
-    private String expected_start_month;
-    private String expected_end_month;
-    private String updated_date;
-    private String apps_needed;
+    private Date expected_start_month;
+    private Date expected_end_month;
+    //private String updated_date;
+    private int apps_needed;
 
     @Resource(name = "jdbc/EtaCalculatorDB")
     private DataSource dataSource;
@@ -45,29 +47,33 @@ public class updateUpcomingProject extends HttpServlet {
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException, IOException {
 
-        customer_name = request.getParameter("customer_name");
-        sow_created_date = request.getParameter("sow_created_date");
-        estimated_size = request.getParameter("estimated_size");
-        jira = request.getParameter("jira");
-        dc = request.getParameter("dc");
-        tem = request.getParameter("tem");
-        notes = request.getParameter("notes");
-        expected_start_month = request.getParameter("expected_start_month");
-        expected_end_month = request.getParameter("expected_end_month");
-        updated_date = request.getParameter("updated_date");
-        apps_needed = request.getParameter("apps_need");
+        try {
+            customer_name = request.getParameter("customer_name");
+            // sow_created_date = stringToDate(request.getParameter("sow_created_date")); // Null from POST
+            estimated_size = Integer.parseInt(request.getParameter("estimated_size"));
+            jira = request.getParameter("jira");
+            dc = request.getParameter("dc");
+            tem = request.getParameter("tem");
+            notes = request.getParameter("notes");
+            expected_start_month = stringToDate(request.getParameter("expected_start_month"));
+            expected_end_month = stringToDate(request.getParameter("expected_end_month"));
+            // updated_date = request.getParameter("updated_date");
+            apps_needed = (request.getParameter("apps_needed") == null) ? 0 : Integer.parseInt(request.getParameter("apps_needed"));
 
-        JSONObject json = new JSONObject();
+            JSONObject json = new JSONObject();
 
-        if (updateDriveAndAddToHistory()) {
-            json.put("result", "success");
-        } else
-            json.put("result", eMessage);
+            if (updateDriveAndAddToHistory()) {
+                json.put("result", "success");
+            } else
+                json.put("result", eMessage);
 
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(json.toString());
-        response.flushBuffer();
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write(json.toString());
+            response.flushBuffer();
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
     }
 
     public boolean updateDriveAndAddToHistory() {
@@ -78,8 +84,7 @@ public class updateUpcomingProject extends HttpServlet {
 
             connect = dataSource.getConnection();
 
-            Date currentDatetime = new Date();
-            Timestamp sqlTime = new Timestamp(currentDatetime.getTime());
+            Date now = now();
 
             String query_updateDrive = "update upcoming_sow set customer_name = ?, estimated_size = ?, jira = ?, dc = ?, tem = ?, notes = ?, expected_start_month = ?, expected_end_month = ?, updated_date = ?, apps_needed = ? " +
                     "where customer_name = '" + customer_name + "'";
@@ -87,15 +92,15 @@ public class updateUpcomingProject extends HttpServlet {
             PreparedStatement prepUpdateDriveStmt = connect.prepareStatement(query_updateDrive);
             prepUpdateDriveStmt.setString(1, customer_name);
             //prepUpdateDriveStmt.setString(2, sow_created_date);
-            prepUpdateDriveStmt.setString(2, estimated_size);
+            prepUpdateDriveStmt.setInt(2, estimated_size);
             prepUpdateDriveStmt.setString(3, jira);
             prepUpdateDriveStmt.setString(4, dc);
             prepUpdateDriveStmt.setString(5, tem);
             prepUpdateDriveStmt.setString(6, notes);
-            prepUpdateDriveStmt.setString(7, expected_start_month);
-            prepUpdateDriveStmt.setString(8, expected_end_month);
-            prepUpdateDriveStmt.setTimestamp(9, sqlTime);
-            prepUpdateDriveStmt.setString(10, apps_needed);
+            prepUpdateDriveStmt.setDate(7, expected_start_month);
+            prepUpdateDriveStmt.setDate(8, expected_end_month);
+            prepUpdateDriveStmt.setDate(9, now);
+            prepUpdateDriveStmt.setInt(10, apps_needed);
 
             int updateRes = prepUpdateDriveStmt.executeUpdate();
 
@@ -127,5 +132,13 @@ public class updateUpcomingProject extends HttpServlet {
         return result;
     }
 
+    public Date stringToDate(String date) throws ParseException {
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        return new Date(format.parse(date).getTime());
+    }
 
+    public static Date now() {
+        java.sql.Date sqlNow = new Date(new java.util.Date().getTime());
+        return sqlNow;
+    }
 }

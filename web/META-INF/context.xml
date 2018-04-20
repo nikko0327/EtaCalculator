@@ -8,7 +8,7 @@
             maxIdle="30"
             maxWaitMillis="-1"
             driverClassName="com.mysql.jdbc.Driver"
-            url="jdbc:mysql://localhost/EtaCalculator"
+            url="jdbc:mysql://localhost/EtaCalculatorTest"
             username="root"
             password=""
     />

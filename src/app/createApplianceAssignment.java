@@ -80,7 +80,6 @@ public class createApplianceAssignment extends HttpServlet {
 
             query_createSprint = "insert into appliance_assignment (appliance, current, previous) values (?,?,?);";
 
-
             prepCreateSprintStmt = connect.prepareStatement(query_createSprint);
 
             prepCreateSprintStmt.setString(1, appliance);

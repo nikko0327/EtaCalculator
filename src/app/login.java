@@ -172,7 +172,7 @@ public class login extends HttpServlet implements db_credentials.mysql_credentia
 
             connect = dataSource.getConnection();
 
-            String query_selectUsers = "select * from user_info where login = 'Yes';";
+            String query_selectUsers = "select * from user_info where login = true;";
 
             PreparedStatement prepSelectUsersStmt = connect.prepareStatement(query_selectUsers);
             ResultSet rs = prepSelectUsersStmt.executeQuery();
@@ -190,13 +190,7 @@ public class login extends HttpServlet implements db_credentials.mysql_credentia
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (connect != null)
-                    connect.close();
-            } catch (SQLException se) {
-                eMessage = se.getMessage();
-                se.printStackTrace();
-            }
+            db_credentials.DB.closeResources(connect);
         }
     }
 }

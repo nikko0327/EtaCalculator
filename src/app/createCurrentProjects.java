@@ -92,6 +92,7 @@ public class createCurrentProjects extends HttpServlet {
         try {
             java.util.Date currentDatetime = new java.util.Date();
             java.sql.Timestamp sqlTime = new Timestamp(currentDatetime.getTime());
+            System.out.println(sqlTime);
 
             connect = dataSource.getConnection();
 

@@ -31,7 +31,8 @@
         <div class="control-group">
             <label class="control-label" for="customer_name">Customer Name</label>
             <div class="controls">
-                <input type="text" required pattern="^[^']*$" id="customer_name" title="Customer Name" placeholder="Customer Name" required>
+                <input type="text" required pattern="^[^']*$" id="customer_name" title="Customer Name"
+                       placeholder="Customer Name" required>
             </div>
         </div>
 
@@ -75,14 +76,14 @@
         <div class="control-group">
             <label class="control-label" for="expected_start_month">Expected Start Date</label>
             <div class="controls">
-                <input type="text" id="expected_start_month" title="Start Date">
+                <input type="text" required id="expected_start_month" title="Start Date">
             </div>
         </div>
 
         <div class="control-group">
             <label class="control-label" for="expected_end_month">Expected End Date</label>
             <div class="controls">
-                <input type="text" id="expected_end_month" title="End Date">
+                <input type="text" required id="expected_end_month" title="End Date">
             </div>
         </div>
 

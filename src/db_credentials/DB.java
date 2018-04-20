@@ -8,6 +8,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public abstract class DB implements mysql_credentials {
+    private static final boolean PRINT_STATUS = true;
 
     public static Connection getConnection() {
 
@@ -20,7 +21,7 @@ public abstract class DB implements mysql_credentials {
             DataSource ds = (DataSource) envContext.lookup("jdbc/EtaCalculatorDB");
             c = ds.getConnection();
 
-            // System.out.println("Connection via DataSource successful.");
+            System.out.println("Connection via DataSource successful.");
 
         } catch (SQLException sql) {
 
@@ -49,5 +50,30 @@ public abstract class DB implements mysql_credentials {
         }
 
         return c;
+    }
+
+    public static boolean closeResources(AutoCloseable... resources) {
+        boolean allClosed = true;
+
+        for (AutoCloseable resource : resources) {
+            if (resource != null) {
+                try {
+                    resource.close();
+                } catch (Exception sql) {
+                    sql.printStackTrace();
+                    allClosed = false;
+                }
+            }
+        }
+
+        if (PRINT_STATUS) {
+            if (allClosed) {
+                // System.out.println("All DB resources closed successfully.");
+            } else {
+                System.out.println("Failed to close some DB resources.");
+            }
+        }
+
+        return allClosed;
     }
 }

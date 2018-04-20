@@ -31,7 +31,8 @@
         <div class="control-group">
             <label class="control-label" for="appliance">Appliance</label>
             <div class="controls">
-                <input type="text" required pattern="^([0-9]{1,3}\.){3}[0-9]{1,3}$" id="appliance" title="Must be a valid IP address." placeholder="New Appliance" required>
+                <input type="text" required pattern="^([0-9]{1,3}\.){3}[0-9]{1,3}$" id="appliance"
+                       title="Must be a valid IP address." placeholder="New Appliance" required>
             </div>
         </div>
 

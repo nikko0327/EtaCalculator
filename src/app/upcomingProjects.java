@@ -75,17 +75,21 @@ public class upcomingProjects extends HttpServlet {
             PreparedStatement prepSearchDriveStmt = connect.prepareStatement(query_searchDrive);
             ResultSet rs = prepSearchDriveStmt.executeQuery();
 
-            //Query to count appliances
-            String query_appliance = ""; //Empty variable for appliance count query
-            query_appliance = "select * from appliance_assignment"; //Setting query for appliance count
-            System.out.println("Search drive: " + query_searchDrive); //Test run
-            PreparedStatement prepSearchDriveStmtAppliance = connect.prepareStatement(query_appliance); //Statement to execute
-            ResultSet rsAppliance = prepSearchDriveStmtAppliance.executeQuery(); //Execute statement
-            int counter = 0;
-            while (rsAppliance.next()) { //Go through every row and add 1 to counter
-                counter++;
-            }
+//            //Query to count appliances
+//            String query_appliance = ""; //Empty variable for appliance count query
+//            query_appliance = "select * from appliance_assignment"; //Setting query for appliance count
+//            System.out.println("Search drive: " + query_searchDrive); //Test run
+//            PreparedStatement prepSearchDriveStmtAppliance = connect.prepareStatement(query_appliance); //Statement to execute
+//            ResultSet rsAppliance = prepSearchDriveStmtAppliance.executeQuery(); //Execute statement
+//            int counter = 0;
+//            while (rsAppliance.next()) { //Go through every row and add 1 to counter
+//                counter++;
+//            }
+//            System.out.println("Appliance Count: " + counter); //Test run
+
+            int counter = getApplianceCount(connect);
             System.out.println("Appliance Count: " + counter); //Test run
+
             // ./Query to count appliances
 
             //Counting appliances in use
@@ -108,15 +112,15 @@ public class upcomingProjects extends HttpServlet {
                 Map<String, String> map = new HashMap<String, String>();
 
                 map.put("customer_name", rs.getString("customer_name"));
-                map.put("sow_created_date", rs.getString("sow_created_date"));
-                map.put("estimated_size", rs.getString("estimated_size"));
+                map.put("sow_created_date", rs.getDate("sow_created_date").toString());
+                map.put("estimated_size", "" + rs.getInt("estimated_size"));
                 map.put("jira", rs.getString("jira"));
                 map.put("dc", rs.getString("dc"));
                 map.put("tem", rs.getString("tem"));
                 map.put("notes", rs.getString("notes"));
-                map.put("expected_start_month", rs.getString("expected_start_month"));
-                map.put("expected_end_month", rs.getString("expected_end_month"));
-                map.put("updated_date", rs.getString("updated_date"));
+                map.put("expected_start_month", rs.getDate("expected_start_month").toString());
+                map.put("expected_end_month", rs.getDate("expected_end_month").toString());
+                map.put("updated_date", rs.getDate("updated_date").toString());
 
                 if (rs.getString("expected_start_month").contains("-") || rs.getString("expected_end_month").contains("-")) {
 
@@ -160,7 +164,6 @@ public class upcomingProjects extends HttpServlet {
                     map.put("apps_needed", finalOutput);
                 } else {
                     map.put("apps_needed", "Dates are not set");
-
                 }
 
 
@@ -188,13 +191,7 @@ public class upcomingProjects extends HttpServlet {
         } catch (ParseException e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (connect != null)
-                    connect.close();
-            } catch (SQLException se) {
-                eMessage = se.getMessage();
-                se.printStackTrace();
-            }
+            db_credentials.DB.closeResources(connect);
         }
 
         return result;
@@ -203,5 +200,24 @@ public class upcomingProjects extends HttpServlet {
     //Method to calculate day in between dates
     public int daysBetween(Date d1, Date d2) {
         return (int) ((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24));
+    }
+
+    public int getApplianceCount(Connection connect) {
+        System.out.println("Retrieving appliance count with 'select count(*) from appliance_assignment;'");
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            connect = dataSource.getConnection();
+            ps = connect.prepareStatement("select count(*) from appliance_assignment;");
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db_credentials.DB.closeResources(ps, rs);
+        }
+        return 0;
     }
 }
