@@ -55,18 +55,18 @@ $(document).ready(function () {
                 }
 
                 else {
-                    result = "<p><h3>Drive created in system with following details:</h3>"
-                        + "<br>customer Name: " + data.customer_name
-                        + "<br>Created Date: " + data.sow_created_date
-                        + "<br>Estimated Size: " + data.estimated_size
-                        + "<br>jira: " + data.jira
-                        + "<br>dc: " + data.dc
-                        + "<br>tem: " + data.tem
-                        + "<br>notes: " + data.notes
-                        + "<br>Expected Start Date: " + data.expected_start_month
-                        + "<br>Expected End Date: " + data.expected_end_month
-                        + "<br>Last Updated: " + data.updated_date
-                        + "<br>Appliance Needed: " + data.apps_needed
+                    result = "<p><h3>Upcoming project created in system with following details:</h3>"
+                        + "<br>Customer name: " + data.customer_name
+                        + "<br>Created date: " + data.sow_created_date
+                        + "<br>Estimated size: " + data.estimated_size
+                        + "<br>Jira: " + data.jira
+                        + "<br>DC: " + data.dc
+                        + "<br>TEM: " + data.tem
+                        + "<br>Notes: " + data.notes
+                        + "<br>Expected start date: " + data.expected_start_month
+                        + "<br>Expected end date: " + data.expected_end_month
+                        //+ "<br>Last Updated: " + data.updated_date
+                        + "<br>Appliance(s) needed: " + data.apps_needed
                 }
 
                 $('#result').append(result);

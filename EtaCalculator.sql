@@ -53,7 +53,6 @@ notes VARCHAR(256) DEFAULT NULL
 INSERT INTO user_info values(
 'mihuang', true, false);
 
-
 INSERT INTO upcoming_sow values(
 'Tesla',
 NOW(),

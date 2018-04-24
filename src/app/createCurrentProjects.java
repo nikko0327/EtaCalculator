@@ -12,6 +12,9 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 @WebServlet("/uploadServletCurrent")
 
@@ -22,14 +25,14 @@ public class createCurrentProjects extends HttpServlet {
     private String customer;
     private String jira;
     private String dc;
-    private String data_size;
+    private int data_size;
     private String import_engr;
     private String tem;
     private String current_stage;
-    private String created_date;
+    private Date created_date;
     private String notes;
-    private String appliance_count;
-    private String is_completed;
+    private int appliance_count;
+    private boolean is_completed;
 
     @Resource(name = "jdbc/EtaCalculatorDB")
     private DataSource dataSource;
@@ -49,82 +52,62 @@ public class createCurrentProjects extends HttpServlet {
      */
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException, IOException {
-        customer = request.getParameter("customer");
-        jira = request.getParameter("jira");
-        dc = request.getParameter("dc");
-        data_size = request.getParameter("data_size");
-        import_engr = request.getParameter("import_engr");
-        tem = request.getParameter("tem");
-        current_stage = request.getParameter("current_stage");
-        created_date = request.getParameter("created_date");
-        notes = request.getParameter("notes");
-        appliance_count = request.getParameter("appliance_count");
-        is_completed = request.getParameter("is_completed");
-
-        String latestDrive;
-
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-
-        if (createDriveAndHistory()) {
-            latestDrive = getCreatedDrive();
-
-            response.getWriter().write(latestDrive);
-            //System.out.println("latest drive = " + latestDrive);
-        } else {
-            JSONObject json = new JSONObject();
-            json.put("message", eMessage);
-            response.getWriter().write(json.toString());
-        }
-
-        response.flushBuffer();
-    }
-
-    private boolean createDriveAndHistory() {
-        boolean result = false;
-        Connection connect = null;
-        PreparedStatement prepSearchDriveStmtAppliance = null;
-        ResultSet rsAppliance = null;
-        PreparedStatement prepSearchDriveStmtCount = null;
-        ResultSet rsCount = null;
-        PreparedStatement prepCreateSprintStmt = null;
 
         try {
-            java.util.Date currentDatetime = new java.util.Date();
-            java.sql.Timestamp sqlTime = new Timestamp(currentDatetime.getTime());
-            System.out.println(sqlTime);
+            customer = request.getParameter("customer");
+            jira = request.getParameter("jira");
+            dc = request.getParameter("dc");
+            data_size = Integer.parseInt(request.getParameter("data_size"));
+            import_engr = request.getParameter("import_engr");
+            tem = request.getParameter("tem");
+            current_stage = request.getParameter("current_stage");
+            created_date = stringToDate(request.getParameter("created_date"));
+            notes = request.getParameter("notes");
+            appliance_count = Integer.parseInt(request.getParameter("appliance_count"));
+            is_completed = false;
+
+            String latestDrive;
+
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+
+            if (createNewCurrentProject()) {
+                latestDrive = searchCurrentProjects();
+
+                response.getWriter().write(latestDrive);
+                //System.out.println("latest drive = " + latestDrive);
+            } else {
+                JSONObject json = new JSONObject();
+                json.put("message", eMessage);
+                response.getWriter().write(json.toString());
+            }
+
+            response.flushBuffer();
+        } catch (Exception e) {
+            throw new ServletException(e);
+        } finally {
+
+        }
+    }
+
+    private boolean createNewCurrentProject() {
+        boolean result = false;
+        Connection connect = null;
+        PreparedStatement psNewCurrentProject = null;
+
+        try {
+            java.sql.Date now = now();
 
             connect = dataSource.getConnection();
 
             // Query to count appliances START
-            String query_appliance = ""; //Empty variable for appliance count query
-            query_appliance = "select * from appliance_assignment"; //Setting query for appliance count
-            System.out.println("Search drive: " + query_appliance); //Test run
-
-            prepSearchDriveStmtAppliance = connect.prepareStatement(query_appliance); //Statement to execute
-            rsAppliance = prepSearchDriveStmtAppliance.executeQuery(); //Execute statement
-
-            int counter = 0;
-            while (rsAppliance.next()) { //Go through every row and add 1 to counter
-                counter++;
-            }
+            int counter = db_credentials.DB.getApplianceCount(connect);
             System.out.println("Appliance Count: " + counter); //Test run
             //Query to count appliances END
 
             //Counting appliances in use START
-            String query_count = ""; //Empty variable for appliance count query
-            query_count = "select * from current_project"; //Setting query for appliance count
-            System.out.println("Search drive: " + query_count); //Test run
-
-            prepSearchDriveStmtCount = connect.prepareStatement(query_count); //Statement to execute
-            rsCount = prepSearchDriveStmtCount.executeQuery(); //Execute statement
-
-            int counterUsed = 0;
-            while (rsCount.next()) { //Go through every row and add 1 to counter
-                int applianceCount = Integer.parseInt(rsCount.getString("appliance_count"));
-                counterUsed = counterUsed + applianceCount;
-            }
-            System.out.println("Counter USED: " + counterUsed); //Test run
+            int counterUsed = db_credentials.DB.getAppliancesInUseCount(connect);
+            System.out.println("Appliances in use: " + counter); //Test run
             //Counting appliances in used END
 
             int counterAvailable = counter - counterUsed;
@@ -132,33 +115,34 @@ public class createCurrentProjects extends HttpServlet {
 
             String query_createSprint;
 
-            int checkLimit = counterAvailable + Integer.parseInt(appliance_count);
+            int checkLimit = counterAvailable + appliance_count;
             System.out.println("CHECK SUM: " + checkLimit);
 
-            if (Integer.parseInt(appliance_count) <= counterAvailable) {
+            if (appliance_count <= counterAvailable) {
                 query_createSprint = "insert into current_project (customer, jira, dc, data_size, import_engr, tem, current_stage, created_date, notes, appliance_count, is_completed) values (?,?,?,?,?,?,?,?,?,?,?);";
 
-                prepCreateSprintStmt = connect.prepareStatement(query_createSprint);
+                psNewCurrentProject = connect.prepareStatement(query_createSprint);
 
-                prepCreateSprintStmt.setString(1, customer);
-                prepCreateSprintStmt.setString(2, jira);
-                prepCreateSprintStmt.setString(3, dc);
-                prepCreateSprintStmt.setString(4, data_size);
-                prepCreateSprintStmt.setString(5, import_engr);
-                prepCreateSprintStmt.setString(6, tem);
-                prepCreateSprintStmt.setString(7, current_stage);
-                prepCreateSprintStmt.setString(8, created_date);
-                prepCreateSprintStmt.setString(9, notes);
-                prepCreateSprintStmt.setString(10, appliance_count);
-                prepCreateSprintStmt.setString(11, is_completed);
+                psNewCurrentProject.setString(1, customer);
+                psNewCurrentProject.setString(2, jira);
+                psNewCurrentProject.setString(3, dc);
+                psNewCurrentProject.setInt(4, data_size);
+                psNewCurrentProject.setString(5, import_engr);
+                psNewCurrentProject.setString(6, tem);
+                psNewCurrentProject.setString(7, current_stage);
+                psNewCurrentProject.setDate(8, created_date);
+                psNewCurrentProject.setString(9, notes);
+                psNewCurrentProject.setInt(10, appliance_count);
+                psNewCurrentProject.setBoolean(11, is_completed);
 
-                int createSprintStmtRes = prepCreateSprintStmt.executeUpdate();
+                psNewCurrentProject.executeUpdate();
 
                 System.out.println("Create drive: " + query_createSprint);
 
                 result = true;
             } else {
                 System.out.println("Can't Add More!!!");
+                eMessage = "Appliance count used for this project exceeds available appliances available.";
             }
         } catch (SQLException e) {
             eMessage = e.getMessage();
@@ -167,39 +151,17 @@ public class createCurrentProjects extends HttpServlet {
             eMessage = e.getMessage();
             e.printStackTrace();
         } finally {
-            try {
-                if (connect != null) {
-                    connect.close();
-                }
-                if (prepSearchDriveStmtAppliance != null) {
-                    prepSearchDriveStmtAppliance.close();
-                }
-                if (rsAppliance != null) {
-                    rsAppliance.close();
-                }
-                if (prepSearchDriveStmtCount != null) {
-                    prepSearchDriveStmtCount.close();
-                }
-                if (rsCount != null) {
-                    rsCount.close();
-                }
-                if (prepCreateSprintStmt != null) {
-                    prepCreateSprintStmt.close();
-                }
-            } catch (SQLException se) {
-                eMessage = se.getMessage();
-                se.printStackTrace();
-            }
+            db_credentials.DB.closeResources(connect, psNewCurrentProject);
         }
 
         return result;
     }
 
-    private String getCreatedDrive() {
+    private String searchCurrentProjects() {
 
         JSONObject json = new JSONObject();
         Connection connect = null;
-        PreparedStatement prepStmt = null;
+        PreparedStatement psSearchCurrentProjects = null;
         ResultSet rs = null;
 
         try {
@@ -207,21 +169,21 @@ public class createCurrentProjects extends HttpServlet {
 
             String query_getDriveById = "select * from current_project where customer ='" + customer + "';";
 
-            prepStmt = connect.prepareStatement(query_getDriveById);
-            rs = prepStmt.executeQuery();
+            psSearchCurrentProjects = connect.prepareStatement(query_getDriveById);
+            rs = psSearchCurrentProjects.executeQuery();
 
             while (rs.next()) {
                 json.put("customer", customer);
                 json.put("jira", jira);
                 json.put("dc", dc);
-                json.put("data_size", data_size);
+                json.put("data_size", "" + data_size);
                 json.put("import_engr", import_engr);
                 json.put("tem", tem);
                 json.put("current_stage", current_stage);
-                json.put("created_date", created_date);
+                json.put("created_date", now().toString());
                 json.put("notes", notes);
-                json.put("appliance_count", appliance_count);
-                json.put("is_completed", is_completed);
+                json.put("appliance_count", "" + appliance_count);
+                json.put("is_completed", (is_completed) ? "Yes" : "No");
             }
         } catch (SQLException e) {
             eMessage = e.getMessage();
@@ -230,22 +192,20 @@ public class createCurrentProjects extends HttpServlet {
             eMessage = e.getMessage();
             e.printStackTrace();
         } finally {
-            try {
-                if (connect != null) {
-                    connect.close();
-                }
-                if (prepStmt != null) {
-                    prepStmt.close();
-                }
-                if (rs != null) {
-                    rs.close();
-                }
-            } catch (SQLException se) {
-                eMessage = se.getMessage();
-                se.printStackTrace();
-            }
+            db_credentials.DB.closeResources(connect, psSearchCurrentProjects, rs);
         }
 
         return json.toString();
+    }
+
+    public Date stringToDate(String date) throws ParseException {
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        return new Date(format.parse(date).getTime());
+    }
+
+    public static Date now() {
+        java.util.Date now = new java.util.Date();
+        java.sql.Date sqlNow = new Date(now.getTime());
+        return sqlNow;
     }
 }

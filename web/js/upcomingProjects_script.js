@@ -84,16 +84,21 @@ $(document).ready(function () {
                                 //alert("Drive successfully deleted");
                                 $('#search_form').submit();
                             }
-                            else
+                            else {
                                 alert("Error: " + data.result);
-                        }, 'json');
+                            }
+                        }
+                        ,
+                        'json'
+                    );
                 } //if ends here
             });//bootbox ends here
 
         e.stopPropagation();
-    });
+    })
+    ;
 
-    //For updating a row(Changing values)
+//For updating a row(Changing values)
     $(document).on('click', "button[name='updateButton']", function (e) {
         var id = $(this).attr('id').replace('update_', '');
         getValuesById(id);
@@ -167,18 +172,19 @@ $(document).ready(function () {
             function (data) {
                 $('#modal_spinner').hide();
 
-                if (data.result == 'success') {
+                if (data.result === 'success') {
                     //alert("Drive successfully updated");
                     $('[data-dismiss="modal"]').click();
                     $('#search_form').submit();
                 }
-                else
+                else {
                     alert("Error: " + data.result);
+                }
             }, 'json');
     });
 
 
-    //For STARTING a project(Send to current projects)
+//For STARTING a project(Send to current projects)
     $(document).on('click', "button[name='startButton']", function (e) {
         var id = $(this).attr('id').replace('start_', '');
         getValuesById(id);
@@ -244,7 +250,8 @@ $(document).ready(function () {
             }, 'json');
     });
 
-});
+})
+;
 
 function currentProject() {
     var customer_name = $('#customer_name').val();
@@ -280,7 +287,7 @@ function currentProject() {
             applianceCount = data.applianceCount;
             used = data.totalApplianceInUse
 
-            if (data.totalMatches == 0) {
+            if (data.totalMatches === 0) {
                 var msg = "No drives found for the selection, please try different combination or "
                     + "update=false" + "'>create a drive</a>";
 
@@ -297,7 +304,7 @@ function currentProject() {
                 value += "<th>JIRA</th>";
                 value += "<th>DC</th>";
                 value += "<th>TEM</th>";
-                value += "<th>NOTES</th>";
+                value += "<th>Notes</th>";
                 value += "<th>Expected Start Date</th>";
                 value += "<th>Expected End Date</th>";
                 value += "<th>Date Updated</th>";
@@ -314,8 +321,9 @@ function currentProject() {
 
                     value += "<tr class='detail' id='tr_" + i + "'>";
 
-                    if (v.customer_name == undefined) {
+                    if (v.customer_name === undefined) {
                         value += "<td>" + "Error: " + v.message + "</td>";
+                        console.log("Customer name is undefined.");
                     } else {
                         globalCustomerName.push(v.customer_name) // Adding customer_name to an array for charting
                         value += "<td>" + v.customer_name + "</td>";

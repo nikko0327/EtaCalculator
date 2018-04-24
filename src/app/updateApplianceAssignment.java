@@ -8,9 +8,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
-import java.io.IOException;
-import java.sql.*;
-import java.util.Date;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 
 public class updateApplianceAssignment extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -35,71 +34,71 @@ public class updateApplianceAssignment extends HttpServlet {
      * response)
      */
     protected void doPost(HttpServletRequest request,
-                          HttpServletResponse response) throws ServletException, IOException {
+                          HttpServletResponse response) throws ServletException {
 
-        appliance = request.getParameter("appliance");
-        current = request.getParameter("current");
-        previous = request.getParameter("previous");
-        JSONObject json = new JSONObject();
+        try {
+            appliance = request.getParameter("appliance");
+            current = request.getParameter("current");
+            previous = request.getParameter("previous");
 
-        if (updateDriveAndAddToHistory()) {
-            json.put("result", "success");
-        } else
-            json.put("result", eMessage);
+            JSONObject json = new JSONObject();
 
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(json.toString());
-        response.flushBuffer();
+            if (updateApplianceAssignment()) {
+                json.put("result", "success");
+            } else {
+                json.put("result", eMessage);
+            }
+
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write(json.toString());
+            response.flushBuffer();
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
     }
 
-    public boolean updateDriveAndAddToHistory() {
+    public boolean updateApplianceAssignment() {
 
         boolean result = false;
         Connection connect = null;
+        PreparedStatement updateApplianceAssignment = null;
+
         try {
             connect = dataSource.getConnection();
 
-            Date currentDatetime = new Date();
-            Timestamp sqlTime = new Timestamp(currentDatetime.getTime());
+            //Date now = now();
 
             String query_updateDrive = "update appliance_assignment set appliance = ?, current = ?, previous = ?" +
                     "where appliance = '" + appliance + "'";
 
-            PreparedStatement prepUpdateDriveStmt = connect.prepareStatement(query_updateDrive);
-            prepUpdateDriveStmt.setString(1, appliance);
-            prepUpdateDriveStmt.setString(2, current);
-            prepUpdateDriveStmt.setString(3, previous);
-
-            int updateRes = prepUpdateDriveStmt.executeUpdate();
+            updateApplianceAssignment = connect.prepareStatement(query_updateDrive);
+            updateApplianceAssignment.setString(1, appliance);
+            updateApplianceAssignment.setString(2, current);
+            updateApplianceAssignment.setString(3, previous);
+            updateApplianceAssignment.executeUpdate();
 
             System.out.println("Update Assignment: " + query_updateDrive);
 
-            String query_selectDriveById = "select * from appliance_assignment where appliance = '" + appliance + "'";
-            PreparedStatement prepSelectDriveStmt = connect.prepareStatement(query_selectDriveById);
-            ResultSet selectDriveRes = prepSelectDriveStmt.executeQuery();
+//            String query_selectDriveById = "select * from appliance_assignment where appliance = '" + appliance + "'";
+//            PreparedStatement prepSelectDriveStmt = connect.prepareStatement(query_selectDriveById);
+//            ResultSet selectDriveRes = prepSelectDriveStmt.executeQuery();
 
             result = true;
 
-            prepSelectDriveStmt.close();
-            prepUpdateDriveStmt.close();
-
-
-        } catch (SQLException e) {
+        } catch (Exception e) {
             eMessage = e.getMessage();
             e.printStackTrace();
         } finally {
-            try {
-                if (connect != null)
-                    connect.close();
-            } catch (SQLException se) {
-                eMessage = se.getMessage();
-                se.printStackTrace();
-            }
+            db_credentials.DB.closeResources(connect, updateApplianceAssignment);
         }
 
         return result;
     }
 
-
+    public static java.sql.Date now() {
+        java.util.Date now = new java.util.Date();
+        java.sql.Date sqlNow = new java.sql.Date(now.getTime());
+        return sqlNow;
+    }
 }

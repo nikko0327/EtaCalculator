@@ -52,7 +52,7 @@ public class createUpcomingProjects extends HttpServlet {
      * response)
      */
     protected void doPost(HttpServletRequest request,
-                          HttpServletResponse response) throws ServletException, IOException {
+                          HttpServletResponse response) throws ServletException {
 
         try {
             customer_name = request.getParameter("customer_name");
@@ -75,26 +75,32 @@ public class createUpcomingProjects extends HttpServlet {
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
 
-            if (createDriveAndHistory()) {
-                latestDrive = getCreatedDrive();
+            JSONObject json = new JSONObject();
 
+            if (expected_start_month.after(expected_end_month)) {
+                eMessage = "The expected start date is after the expected end date.";
+                json.put("message", eMessage);
+                response.getWriter().write(json.toString());
+                response.flushBuffer();
+                return;
+            } else if (createUpcomingProject()) {
+                latestDrive = getCreatedUpcomingProject();
                 response.getWriter().write(latestDrive);
                 //System.out.println("latest drive = " + latestDrive);
             } else {
-                JSONObject json = new JSONObject();
                 json.put("message", eMessage);
                 response.getWriter().write(json.toString());
             }
-
             response.flushBuffer();
         } catch (Exception e) {
             throw new ServletException(e);
         }
     }
 
-    private boolean createDriveAndHistory() {
+    private boolean createUpcomingProject() {
         boolean result = false;
         Connection connect = null;
+        PreparedStatement psNewUpcomingProject = null;
         try {
             Date sqlNow = now();
 
@@ -104,45 +110,43 @@ public class createUpcomingProjects extends HttpServlet {
 
             query_createSprint = "insert into upcoming_sow (customer_name, sow_created_date, estimated_size, jira, dc, tem, notes, expected_start_month, expected_end_month, updated_date, apps_needed) values (?,?,?,?,?,?,?,?,?,?,?);";
 
-            PreparedStatement prepCreateSprintStmt = connect.prepareStatement(query_createSprint);
+            psNewUpcomingProject = connect.prepareStatement(query_createSprint);
 
-            prepCreateSprintStmt.setString(1, customer_name);
-            prepCreateSprintStmt.setDate(2, sqlNow);
-            prepCreateSprintStmt.setInt(3, estimated_size);
-            prepCreateSprintStmt.setString(4, jira);
-            prepCreateSprintStmt.setString(5, dc);
-            prepCreateSprintStmt.setString(6, tem);
-            prepCreateSprintStmt.setString(7, notes);
-            prepCreateSprintStmt.setDate(8, expected_start_month);
-            prepCreateSprintStmt.setDate(9, expected_end_month);
-            prepCreateSprintStmt.setDate(10, sqlNow);
-            prepCreateSprintStmt.setInt(11, apps_needed);
+            psNewUpcomingProject.setString(1, customer_name);
+            psNewUpcomingProject.setDate(2, sqlNow);
+            psNewUpcomingProject.setInt(3, estimated_size);
+            psNewUpcomingProject.setString(4, jira);
+            psNewUpcomingProject.setString(5, dc);
+            psNewUpcomingProject.setString(6, tem);
+            psNewUpcomingProject.setString(7, notes);
+            psNewUpcomingProject.setDate(8, expected_start_month);
+            psNewUpcomingProject.setDate(9, expected_end_month);
+            psNewUpcomingProject.setDate(10, sqlNow);
+            psNewUpcomingProject.setInt(11, apps_needed);
 
-            System.out.println("creating upcoming project " + prepCreateSprintStmt.toString());
+            System.out.println("creating upcoming project " + psNewUpcomingProject.toString());
 
-            int createSprintStmtRes = prepCreateSprintStmt.executeUpdate();
+            int createSprintStmtRes = psNewUpcomingProject.executeUpdate();
 
             System.out.println("Create drive: " + query_createSprint);
 
             result = true;
 
-            prepCreateSprintStmt.close();
-            // prepCreateHistoryStmt.close();
-            // sendEmailNotification();
-
         } catch (SQLException e) {
             eMessage = e.getMessage();
             e.printStackTrace();
         } finally {
-            db_credentials.DB.closeResources(connect);
+            db_credentials.DB.closeResources(connect, psNewUpcomingProject);
         }
         return result;
     }
 
-    private String getCreatedDrive() {
+    private String getCreatedUpcomingProject() {
 
         JSONObject json = new JSONObject();
         Connection connect = null;
+        PreparedStatement psSearch = null;
+        ResultSet rs = null;
         try {
             connect = dataSource.getConnection();
 
@@ -151,9 +155,8 @@ public class createUpcomingProjects extends HttpServlet {
 
             String query_getDriveById = "select * from upcoming_sow where customer_name ='" + customer_name + "';";
 
-            PreparedStatement prepStmt = connect
-                    .prepareStatement(query_getDriveById);
-            ResultSet rs = prepStmt.executeQuery();
+            psSearch = connect.prepareStatement(query_getDriveById);
+            rs = psSearch.executeQuery();
 
             while (rs.next()) {
                 json.put("customer_name", customer_name);
@@ -172,7 +175,7 @@ public class createUpcomingProjects extends HttpServlet {
             eMessage = e.getMessage();
             e.printStackTrace();
         } finally {
-            db_credentials.DB.closeResources(connect);
+            db_credentials.DB.closeResources(connect, psSearch, rs);
         }
 
         return json.toString();
@@ -183,7 +186,7 @@ public class createUpcomingProjects extends HttpServlet {
         return new Date(format.parse(date).getTime());
     }
 
-    public static Date now() {
+    public Date now() {
         java.util.Date now = new java.util.Date();
         java.sql.Date sqlNow = new Date(now.getTime());
         return sqlNow;

@@ -92,7 +92,8 @@
         <div class="control-group">
             <label class="control-label" for="tem">Appliance Count</label>
             <div class="controls">
-                <input type="number" id="appliance_count" title="Previous HERE" placeholder="Number of Appliance(s)"
+                <input type="number" id="appliance_count" min="1" title="Must be at least 1"
+                       placeholder="Number of Appliance(s)"
                        required>
             </div>
         </div>
