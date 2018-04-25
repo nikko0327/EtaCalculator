@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
-import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
 import java.text.DateFormat;
@@ -34,6 +33,7 @@ public class createUpcomingProjects extends HttpServlet {
     private String updated_date; // not used, local time generator used.
     private int apps_needed;
     // private String lastUpdated;
+    private JSONObject newestCreatedUpcomingProjectJSON;
 
     @Resource(name = "jdbc/EtaCalculatorDB")
     private DataSource dataSource;
@@ -54,12 +54,14 @@ public class createUpcomingProjects extends HttpServlet {
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException {
 
+        System.out.println("--- createUpcomingProjects ---");
+
         try {
             customer_name = request.getParameter("customer_name");
             // sow_created_date = request.getParameter("sow_created_date");
             sow_created_date = new Date(new java.util.Date().getTime()); // Right now
             // expected = request.getParameter("expected");
-            estimated_size = Integer.parseInt(request.getParameter("estimated_size"));
+            estimated_size = (int) Double.parseDouble(request.getParameter("estimated_size"));
             jira = request.getParameter("jira");
             dc = request.getParameter("dc");
             tem = request.getParameter("tem");
@@ -84,9 +86,10 @@ public class createUpcomingProjects extends HttpServlet {
                 response.flushBuffer();
                 return;
             } else if (createUpcomingProject()) {
-                latestDrive = getCreatedUpcomingProject();
-                response.getWriter().write(latestDrive);
-                //System.out.println("latest drive = " + latestDrive);
+                //latestDrive = getCreatedUpcomingProject();
+                //response.getWriter().write(latestDrive);
+                response.getWriter().write(newestCreatedUpcomingProjectJSON.toString());
+                System.out.println("Newest upcoming project = " + newestCreatedUpcomingProjectJSON.toString());
             } else {
                 json.put("message", eMessage);
                 response.getWriter().write(json.toString());
@@ -126,13 +129,25 @@ public class createUpcomingProjects extends HttpServlet {
 
             System.out.println("creating upcoming project " + psNewUpcomingProject.toString());
 
-            int createSprintStmtRes = psNewUpcomingProject.executeUpdate();
+            psNewUpcomingProject.executeUpdate();
 
             System.out.println("Create drive: " + query_createSprint);
 
             result = true;
 
-        } catch (SQLException e) {
+            newestCreatedUpcomingProjectJSON = new JSONObject();
+            newestCreatedUpcomingProjectJSON.put("customer_name", customer_name);
+            newestCreatedUpcomingProjectJSON.put("sow_created_date", sqlNow.toString());
+            newestCreatedUpcomingProjectJSON.put("estimated_size", estimated_size);
+            newestCreatedUpcomingProjectJSON.put("jira", jira);
+            newestCreatedUpcomingProjectJSON.put("dc", dc);
+            newestCreatedUpcomingProjectJSON.put("tem", tem);
+            newestCreatedUpcomingProjectJSON.put("notes", notes);
+            newestCreatedUpcomingProjectJSON.put("expected_start_month", expected_start_month.toString());
+            newestCreatedUpcomingProjectJSON.put("expected_end_month", expected_end_month.toString());
+            newestCreatedUpcomingProjectJSON.put("updated_date", sqlNow.toString());
+            //newestCreatedUpcomingProjectJSON.put("apps_needed", apps_needed);
+        } catch (Exception e) {
             eMessage = e.getMessage();
             e.printStackTrace();
         } finally {

@@ -167,7 +167,7 @@ function applianceAssignment() {
 
                         value += "<td><button name ='updateButton' class='btn btn-mini' id='update_" + i + "'><i class='icon-edit'></i></button>";
 
-                        if ($('#username').val() == "nokada" || $('#username').val() == "nlee")
+                        if ($('#username').val() == "nokada" || $('#username').val() == "nlee" || $('#username').val() == "mihuang")
                             value += "&nbsp;<button name ='deleteButton' class='btn btn-mini btn-danger' id='delete_" + i + "'><i class='icon-trash'></i></button>";
 
                         value +=

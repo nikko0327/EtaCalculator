@@ -29,7 +29,7 @@ public class updateUpcomingProject extends HttpServlet {
     private String notes;
     private Date expected_start_month;
     private Date expected_end_month;
-    private String updated_date;
+    // private Date updated_date;
     private int apps_needed;
 
     @Resource(name = "jdbc/EtaCalculatorDB")
@@ -49,17 +49,19 @@ public class updateUpcomingProject extends HttpServlet {
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException, IOException {
 
+        System.out.println("--- updateUpcomingProject ---");
+
         try {
             customer_name = request.getParameter("customer_name");
             //sow_created_date = stringToDate(request.getParameter("sow_created_date")); // Null from POST
-            estimated_size = Integer.parseInt(request.getParameter("estimated_size"));
+            estimated_size = (int) Double.parseDouble(request.getParameter("estimated_size"));
             jira = request.getParameter("jira");
             dc = request.getParameter("dc");
             tem = request.getParameter("tem");
             notes = request.getParameter("notes");
             expected_start_month = stringToDate(request.getParameter("expected_start_month"));
             expected_end_month = stringToDate(request.getParameter("expected_end_month"));
-            updated_date = request.getParameter("updated_date");
+            // updated_date = stringToDate(request.getParameter("updated_date"));
             apps_needed = (request.getParameter("apps_needed") == null) ? 0 : Integer.parseInt(request.getParameter("apps_needed"));
 
             JSONObject json = new JSONObject();

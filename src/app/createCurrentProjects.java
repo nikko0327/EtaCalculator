@@ -53,6 +53,8 @@ public class createCurrentProjects extends HttpServlet {
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException, IOException {
 
+        System.out.println("--- createCurrentProjects ---");
+
         try {
             customer = request.getParameter("customer");
             jira = request.getParameter("jira");
@@ -176,13 +178,13 @@ public class createCurrentProjects extends HttpServlet {
                 json.put("customer", customer);
                 json.put("jira", jira);
                 json.put("dc", dc);
-                json.put("data_size", "" + data_size);
+                json.put("data_size", data_size);
                 json.put("import_engr", import_engr);
                 json.put("tem", tem);
                 json.put("current_stage", current_stage);
                 json.put("created_date", now().toString());
                 json.put("notes", notes);
-                json.put("appliance_count", "" + appliance_count);
+                json.put("appliance_count", appliance_count);
                 json.put("is_completed", (is_completed) ? "Yes" : "No");
             }
         } catch (SQLException e) {

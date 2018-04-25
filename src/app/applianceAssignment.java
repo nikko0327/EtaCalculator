@@ -8,11 +8,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,21 +36,27 @@ public class applianceAssignment extends HttpServlet {
     /**
      * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
      */
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 
-        String appliance = request.getParameter("appliance");
-        String current = request.getParameter("current");
-        String previous = request.getParameter("previous");
+        System.out.println("--- applianceAssignment ---");
+        try {
+            String appliance = request.getParameter("appliance");
+            String current = request.getParameter("current");
+            String previous = request.getParameter("previous");
 
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
 
-        if (getSearchResult(appliance, current, previous))
-            response.getWriter().write(searchResult);
-        else
-            response.getWriter().write(new JSONObject().put("message", eMessage).toString());
+            if (getSearchResult(appliance, current, previous)) {
+                response.getWriter().write(searchResult);
+            } else {
+                response.getWriter().write(new JSONObject().put("message", eMessage).toString());
+            }
 
-        response.flushBuffer();
+            response.flushBuffer();
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
     }
 
     public boolean getSearchResult(String appliance, String current, String previous) {
@@ -64,7 +68,7 @@ public class applianceAssignment extends HttpServlet {
         boolean result = false;
 
         Connection connect = null;
-        PreparedStatement prepSearchDriveStmt = null;
+        PreparedStatement ps = null;
         ResultSet rs = null;
 
         try {
@@ -76,48 +80,48 @@ public class applianceAssignment extends HttpServlet {
             String query_searchDrive = "";
 
             // For Search
-
-            if ((appliance.equalsIgnoreCase(null) || appliance.equalsIgnoreCase(""))
-                    && (current.equalsIgnoreCase(null) || current.equalsIgnoreCase(""))
-                    && (previous.equalsIgnoreCase(null) || previous.equalsIgnoreCase(""))) {
-
-                // get all drives except the ones returned to customer
-                query_searchDrive = "select * from appliance_assignment " +
-                        "where appliance <> 'appliance' " +
-                        "and current <> 'current' " +
-                        "and previous <> 'previous' " +
-                        "order by current desc;";
-            } else {
-                query_searchDrive = "select * from appliance_assignment where";
-
-                if (!(appliance.equalsIgnoreCase(null) || appliance.equalsIgnoreCase("")))
-                    query_searchDrive += " appliance like '%" + appliance + "%'";
-
-                if (!(current.equalsIgnoreCase(null) || current.equalsIgnoreCase(""))) {
-                    if (query_searchDrive.equalsIgnoreCase("select * from appliance_assignment where"))
-                        query_searchDrive += " current like '%" + current + "%'";
-                    else
-                        query_searchDrive += " and current like '%" + current + "%'";
-                }
-
-                if (!(previous.equalsIgnoreCase(null) || previous.equalsIgnoreCase(""))) {
-                    if (query_searchDrive.equalsIgnoreCase("select * from appliance_assignment where"))
-                        query_searchDrive += " previous like '%" + previous + "%'";
-                    else
-                        query_searchDrive += " and previous like '%" + previous + "%'";
-                }
-
-                query_searchDrive += " order by current desc;";
-            }
+//
+//            if ((appliance.equalsIgnoreCase(null) || appliance.equalsIgnoreCase(""))
+//                    && (current.equalsIgnoreCase(null) || current.equalsIgnoreCase(""))
+//                    && (previous.equalsIgnoreCase(null) || previous.equalsIgnoreCase(""))) {
+//
+//                // get all drives except the ones returned to customer
+//                query_searchDrive = "select * from appliance_assignment " +
+//                        "where appliance <> 'appliance' " +
+//                        "and current <> 'current' " +
+//                        "and previous <> 'previous' " +
+//                        "order by current desc;";
+//            } else {
+//                query_searchDrive = "select * from appliance_assignment where";
+//
+//                if (!(appliance.equalsIgnoreCase(null) || appliance.equalsIgnoreCase("")))
+//                    query_searchDrive += " appliance like '%" + appliance + "%'";
+//
+//                if (!(current.equalsIgnoreCase(null) || current.equalsIgnoreCase(""))) {
+//                    if (query_searchDrive.equalsIgnoreCase("select * from appliance_assignment where"))
+//                        query_searchDrive += " current like '%" + current + "%'";
+//                    else
+//                        query_searchDrive += " and current like '%" + current + "%'";
+//                }
+//
+//                if (!(previous.equalsIgnoreCase(null) || previous.equalsIgnoreCase(""))) {
+//                    if (query_searchDrive.equalsIgnoreCase("select * from appliance_assignment where"))
+//                        query_searchDrive += " previous like '%" + previous + "%'";
+//                    else
+//                        query_searchDrive += " and previous like '%" + previous + "%'";
+//                }
+//
+//                query_searchDrive += " order by current desc;";
+//            }
 
             // get all drives except the ones returned to customer
             // query_searchDrive = "select * from drive_info";
-            // query_searchDrive = "select * from appliance_assignment";
+            query_searchDrive = "select * from appliance_assignment";
 
             System.out.println("Search drive: " + query_searchDrive);
 
-            prepSearchDriveStmt = connect.prepareStatement(query_searchDrive);
-            rs = prepSearchDriveStmt.executeQuery();
+            ps = connect.prepareStatement(query_searchDrive);
+            rs = ps.executeQuery();
 
             result = true;
 
@@ -138,27 +142,11 @@ public class applianceAssignment extends HttpServlet {
 
             searchResult = json.toString();
 
-        } catch (SQLException e) {
-            eMessage = e.getMessage();
-            e.printStackTrace();
         } catch (Exception e) {
             eMessage = e.getMessage();
             e.printStackTrace();
         } finally {
-            try {
-                if (connect != null) {
-                    connect.close();
-                }
-                if (rs != null) {
-                    rs.close();
-                }
-                if (prepSearchDriveStmt != null) {
-                    prepSearchDriveStmt.close();
-                }
-            } catch (SQLException se) {
-                eMessage = se.getMessage();
-                se.printStackTrace();
-            }
+            db_credentials.DB.closeResources(connect, ps, rs);
         }
 
         return result;

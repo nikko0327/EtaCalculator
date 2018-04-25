@@ -36,6 +36,8 @@ public class updateApplianceAssignment extends HttpServlet {
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException {
 
+        System.out.println("--- updateApplianceAssignment ---");
+
         try {
             appliance = request.getParameter("appliance");
             current = request.getParameter("current");

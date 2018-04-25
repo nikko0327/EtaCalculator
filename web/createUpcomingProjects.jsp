@@ -39,7 +39,8 @@
         <div class="control-group">
             <label class="control-label" for="estimated_size">Estimated Size</label>
             <div class="controls">
-                <input type="number" id="estimated_size" title="Previous HERE" placeholder="Size" required>
+                <input type="number" min="0" step="1" id="estimated_size" title="Previous HERE" placeholder="Data size"
+                       required>
             </div>
         </div>
 

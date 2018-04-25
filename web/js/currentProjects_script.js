@@ -25,8 +25,7 @@ $(document).ready(function () {
 
     $(document).on('click', '#drive_table tr', function () {
         var id = $(this).attr('id').replace('tr_', '');
-        var estimate =
-            getValuesById(id);
+        var estimate = getValuesById(id);
         $('#details_change_customer').html("<a href='createCurrentProjects.jsp?customer=" + customer + "&" +
             "jira=" + jira + "&" +
             "dc=" + dc + "&" +
@@ -109,7 +108,8 @@ $(document).ready(function () {
             "notes=" + notes + "&" +
             "appliance_count=" + appliance_count + "&" +
             "is_completed=" + is_completed + "&" +
-            "update=true" + "'>Click here to use this Drive for other customer</a>");
+            "update=true" + "'>Click here to use this project configuration for another customer</a>");
+
         $('#modal_customer').val(customer);
         $('#modal_jira').val(jira);
         $('#modal_dc').val(dc);
@@ -120,6 +120,7 @@ $(document).ready(function () {
         $('#modal_created_date').val(created_date);
         $('#modal_notes').val(notes);
         $('#modal_appliance_count').val(appliance_count);
+        $('#modal_current_appliance_count').val(current_appliance_count);
         $('#modal_is_completed').val(is_completed);
         $('#modal_spinner').hide();
         $('#updateModal').modal();
@@ -140,11 +141,12 @@ $(document).ready(function () {
         // var username = $('#username').val();
         var appliance_count = $('#modal_appliance_count').val();
         var is_completed = $('#modal_is_completed').val();
+        var current_appliance_count = $('#modal_current_appliance_count').val();
+        //console.log("Current appliance count: " + current_appliance_count);
 
         if (customer == null || customer == "") {
             alert("Drive must have project");
             $("#modal_customer").focus();
-
             return;
         }
 
@@ -162,8 +164,8 @@ $(document).ready(function () {
                 created_date: created_date,
                 notes: notes,
                 appliance_count: appliance_count,
+                current_appliance_count: current_appliance_count,
                 is_completed: is_completed
-
             },
             function (data) {
                 $('#modal_spinner').hide();
@@ -282,7 +284,7 @@ function currentProject() {
 
                         value += "<td><button name ='updateButton' class='btn btn-mini' id='update_" + i + "'><i class='icon-edit'></i></button>";
 
-                        if ($('#username').val() == "nokada" || $('#username').val() == "nlee")
+                        if ($('#username').val() == "nokada" || $('#username').val() == "nlee" || $('#username').val() == "mihuang")
                             value += "&nbsp;<button name ='deleteButton' class='btn btn-mini btn-danger' id='delete_" + i + "'><i class='icon-trash'></i></button>";
                         value +=
                             "<input type='hidden' id='customer" + i + "' value='" + v.customer + "'>" +
@@ -336,6 +338,7 @@ function getValuesById(id) {
     current_stage = $('#current_stage' + id).val();
     notes = $('#notes' + id).val();
     appliance_count = $('#appliance_count' + id).val();
+    current_appliance_count = $('#appliance_count' + id).val();
     created_date = $('#created_date' + id).val();
     is_completed = $('#is_completed' + id).val();
     return_ = $('#created_date' + id).val();

@@ -8,7 +8,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -27,6 +29,7 @@ public class updateCurrentProject extends HttpServlet {
     private java.sql.Date created_date;
     private String notes;
     private int appliance_count;
+    private int current_appliance_count;
     private boolean is_completed;
 
     @Resource(name = "jdbc/EtaCalculatorDB")
@@ -46,26 +49,32 @@ public class updateCurrentProject extends HttpServlet {
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException {
 
+        System.out.println("--- updateCurrentProject ---");
+
         try {
             customer = request.getParameter("customer");
             jira = request.getParameter("jira");
             dc = request.getParameter("dc");
-            data_size = Integer.parseInt(request.getParameter("data_size"));
+            data_size = (int) Double.parseDouble(request.getParameter("data_size"));
             import_engr = request.getParameter("import_engr");
             tem = request.getParameter("tem");
             current_stage = request.getParameter("current_stage");
             created_date = stringToDate(request.getParameter("created_date"));
             notes = request.getParameter("notes");
-            appliance_count = Integer.parseInt(request.getParameter("appliance_count"));
+            appliance_count = (int) Double.parseDouble(request.getParameter("appliance_count"));
+            current_appliance_count = (int) Double.parseDouble(request.getParameter("current_appliance_count"));
             is_completed = (request.getParameter("is_completed").equals("Yes")) ? true : false;
 
             JSONObject json = new JSONObject();
 
 
-            if (updateCurrentProject()) {
+            if (false) {
+
+            } else if (updateCurrentProject()) {
                 json.put("result", "success");
-            } else
+            } else {
                 json.put("result", eMessage);
+            }
 
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
@@ -104,7 +113,7 @@ public class updateCurrentProject extends HttpServlet {
             int checkLimit = counterAvailable + appliance_count;
             System.out.println("CHECK SUM: " + checkLimit);
 
-            if (appliance_count <= counterAvailable) {
+            if (current_appliance_count == appliance_count || appliance_count <= counterAvailable + current_appliance_count) {
 
                 String query_updateDrive = "update current_project set customer = ?, jira = ?, dc = ?, data_size = ?, import_engr = ?, tem = ?, current_stage = ?, created_date = ?, notes = ?, appliance_count = ?, is_completed = ? " +
                         "where customer = '" + customer + "'";
@@ -124,7 +133,7 @@ public class updateCurrentProject extends HttpServlet {
 
                 psUpdateCurrentProject.executeUpdate();
 
-                System.out.println("Update Assignment: " + query_updateDrive);
+                System.out.println("Update Assignment: " + psUpdateCurrentProject.toString());
 
 //                String query_selectDriveById = "select * from current_project where customer = '" + customer + "'";
 //                PreparedStatement prepSelectDriveStmt = connect.prepareStatement(query_selectDriveById);
@@ -135,7 +144,7 @@ public class updateCurrentProject extends HttpServlet {
                 System.out.println("Can't add more!!!");
                 eMessage = "Appliance count used for this project exceeds available appliances available.";
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             eMessage = e.getMessage();
             e.printStackTrace();
         } finally {

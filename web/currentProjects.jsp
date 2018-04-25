@@ -45,7 +45,7 @@
 </div>
 
 
-<!-- Start of udpate modal -->
+<!-- Start of update modal -->
 <div id="updateModal" class="modal hide fade in" style="display: none;">
     <div class="modal-header">
         <a class="close" data-dismiss="modal">?</a>
@@ -123,9 +123,16 @@
             </div>
 
             <div class="control-group">
-                <label class="control-label" for="modal_appliance_count">Number of Appliances</label>
+                <label class="control-label" for="modal_current_appliance_count">Previous number of appliances</label>
                 <div class="controls">
-                    <input type="text" id="modal_appliance_count" value="" required>
+                    <input type="text" id="modal_current_appliance_count" value="" readonly>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="modal_appliance_count">New number of appliances</label>
+                <div class="controls">
+                    <input type="number" min="1" step="1" id="modal_appliance_count" value="" required>
                 </div>
             </div>
 

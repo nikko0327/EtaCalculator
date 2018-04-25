@@ -42,6 +42,8 @@ public class createApplianceAssignment extends HttpServlet {
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException, IOException {
 
+        System.out.println("--- createApplianceAssignment ---");
+
         appliance = request.getParameter("appliance");
         current = request.getParameter("current");
         previous = request.getParameter("previous");

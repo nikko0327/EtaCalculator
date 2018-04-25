@@ -13,7 +13,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -38,6 +37,8 @@ public class upcomingProjects extends HttpServlet {
      * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
      */
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+
+        System.out.println("--- upcomingProjects ---");
 
         try {
             response.setContentType("application/json");
@@ -243,7 +244,7 @@ public class upcomingProjects extends HttpServlet {
 //            //Calculating to get Appliances needed END
 //            String finalOutput = String.valueOf(totalNumberOfGigsNeeded); //Final output we need for getting apps needed
 //            //map.put("apps_needed", finalOutput);
-            map.put("apps_needed", "55");
+            map.put("apps_needed", "" + 3);
         } else {
             map.put("apps_needed", "Dates are not set");
         }

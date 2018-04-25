@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -39,18 +38,23 @@ public class currentProjects extends HttpServlet {
     /**
      * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
      */
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
+        System.out.println("--- currentProjects ---");
+        try {
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
 
-        if (getSearchResult()) {
-            response.getWriter().write(searchResult);
-        } else {
-            response.getWriter().write(new JSONObject().put("message", eMessage).toString());
+            if (getSearchResult()) {
+                response.getWriter().write(searchResult);
+            } else {
+                response.getWriter().write(new JSONObject().put("message", eMessage).toString());
+            }
+
+            response.flushBuffer();
+        } catch (Exception e) {
+            throw new ServletException(e);
         }
-
-        response.flushBuffer();
     }
 
     public boolean getSearchResult() {
@@ -195,8 +199,8 @@ public class currentProjects extends HttpServlet {
         java.sql.Date createdDate = rs.getDate("created_date");
         //System.out.println("--- GETSEARCHDRIVEJSONRESULTS IN CURRENTPROJECTS: " + createdDate.toString());
 
-        double dataSize = rs.getInt("data_size");
-        double applianceCount = rs.getInt("appliance_count");
+        int dataSize = rs.getInt("data_size");
+        int applianceCount = rs.getInt("appliance_count");
 
         map.put("customer", rs.getString("customer"));
         map.put("jira", rs.getString("jira"));
@@ -208,6 +212,7 @@ public class currentProjects extends HttpServlet {
         map.put("created_date", createdDate.toString());
         map.put("notes", rs.getString("notes"));
         map.put("appliance_count", "" + applianceCount);
+        map.put("current_appliance_count", "" + applianceCount);
         map.put("is_completed", (rs.getBoolean("is_completed")) ? "Yes" : "No");
 
         //Added for Closing Date

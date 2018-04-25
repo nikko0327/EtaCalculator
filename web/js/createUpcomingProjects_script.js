@@ -39,8 +39,8 @@ $(document).ready(function () {
                 notes: notes,
                 expected_start_month: expected_start_month,
                 expected_end_month: expected_end_month,
-                updated_date: updated_date,
-                apps_needed: apps_needed
+                updated_date: updated_date
+                //apps_needed: apps_needed
 
             },
             function (data) {

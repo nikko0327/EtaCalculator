@@ -54,7 +54,8 @@
         <div class="control-group">
             <label class="control-label" for="data_size">Data Size</label>
             <div class="controls">
-                <input type="number" id="data_size" title="Previous HERE" placeholder="Data Size" required>
+                <input type="number" id="data_size" min="0" step="1" title="Previous HERE" placeholder="Data Size"
+                       required>
             </div>
         </div>
 
