@@ -128,7 +128,7 @@
 <div id="detailsModal" class="modal hide fade in" style="display: none;">
     <div class="modal-header">
         <a class="close" data-dismiss="modal">?</a>
-        <h3>Drive Details</h3>
+        <h3>Upcoming project details</h3>
         <div id="details_change_customer"></div>
     </div>
 
@@ -184,14 +184,14 @@
             </div>
 
             <div class="control-group">
-                <label class="control-label" for="details_modal_expected_start_month">Expected Start Month</label>
+                <label class="control-label" for="details_modal_expected_start_month">Expected Start Date</label>
                 <div class="controls">
                     <p id="details_modal_expected_start_month"></p>
                 </div>
             </div>
 
             <div class="control-group">
-                <label class="control-label" for="details_modal_expected_end_month">Expected End Month</label>
+                <label class="control-label" for="details_modal_expected_end_month">Expected End Date</label>
                 <div class="controls">
                     <p id="details_modal_expected_end_month"></p>
                 </div>
@@ -205,7 +205,7 @@
             </div>
 
             <div class="control-group">
-                <label class="control-label" for="details_modal_apps_needed">App(s) Needed</label>
+                <label class="control-label" for="details_modal_apps_needed">Appliances Needed</label>
                 <div class="controls">
                     <p id="details_modal_apps_needed"></p>
                 </div>
@@ -234,7 +234,7 @@
         <form class="form-horizontal">
 
             <div class="control-group">
-                <label class="control-label" for="start_modal_customer_name">Customer Name</label>
+                <label class="control-label" for="start_modal_customer_name">Customer name</label>
                 <div class="controls">
                     <input type="text" id="start_modal_customer_name" value="" readonly>
                 </div>
@@ -256,14 +256,14 @@
             </div>
 
             <div class="control-group">
-                <label class="control-label" for="start_modal_data_size">Data Size</label>
+                <label class="control-label" for="start_modal_data_size">Data size</label>
                 <div class="controls">
                     <input type="text" id="start_modal_data_size" value="">
                 </div>
             </div>
 
             <div class="control-group">
-                <label class="control-label" for="start_modal_import_engr">Import Engineer</label>
+                <label class="control-label" for="start_modal_import_engr">Import engineer</label>
                 <div class="controls">
                     <select id="start_modal_import_engr">
                     </select>
@@ -279,7 +279,7 @@
             </div>
 
             <div class="control-group">
-                <label class="control-label" for="start_modal_current_stage">Current_stage</label>
+                <label class="control-label" for="start_modal_current_stage">Current stage</label>
                 <div class="controls">
                     <select id="start_modal_current_stage">
                     </select>
@@ -287,14 +287,14 @@
             </div>
 
             <div class="control-group">
-                <label class="control-label" for="start_modal_created_date">Created Date</label>
+                <label class="control-label" for="start_modal_created_date">Created date</label>
                 <div class="controls">
                     <input type="text" id="start_modal_created_date" value="">
                 </div>
             </div>
 
             <div class="control-group">
-                <label class="control-label" for="start_modal_appliance_count">Appliance(s)</label>
+                <label class="control-label" for="start_modal_appliance_count">Appliances needed</label>
                 <div class="controls">
                     <input type="text" id="start_modal_appliance_count" value="">
                 </div>

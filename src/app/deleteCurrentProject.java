@@ -2,6 +2,7 @@ package app;
 
 /**
  * Created by nlee on 8/15/16.
+ * Updated by mihuang near 4/20/18.
  */
 
 import net.sf.json.JSONObject;
@@ -12,7 +13,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -21,7 +21,6 @@ import java.sql.SQLException;
 public class deleteCurrentProject extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private String eMessage;
-
     private String customer;
 
     @Resource(name = "jdbc/EtaCalculatorDB")
@@ -40,52 +39,49 @@ public class deleteCurrentProject extends HttpServlet {
      * response)
      */
     protected void doPost(HttpServletRequest request,
-                          HttpServletResponse response) throws ServletException, IOException {
-        customer = request.getParameter("customer");
+                          HttpServletResponse response) throws ServletException {
+        try {
+            customer = request.getParameter("customer");
 
-        JSONObject json = new JSONObject();
+            JSONObject json = new JSONObject();
 
-        if (removeDriveAndHistory())
-            json.put("result", "success");
-        else
-            json.put("result", eMessage);
+            if (removeCurrentProject()) {
+                json.put("result", "success");
+            } else {
+                json.put("result", eMessage);
+            }
 
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(json.toString());
-        response.flushBuffer();
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write(json.toString());
+            response.flushBuffer();
+
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
     }
 
-    public boolean removeDriveAndHistory() {
+    public boolean removeCurrentProject() {
         boolean result = false;
-
         Connection connect = null;
+        PreparedStatement psDeleteCurrentProject = null;
         try {
             connect = dataSource.getConnection();
 
-            String query_deleteDrive = "delete from current_project where customer = '" + customer + "';";
+            String query_deleteDrive = "delete from current_project where customer = ?;";
 
-            PreparedStatement prepDeleteDriveStmt = connect.prepareStatement(query_deleteDrive);
-            int deleteDriveRes = prepDeleteDriveStmt.executeUpdate();
+            psDeleteCurrentProject = connect.prepareStatement(query_deleteDrive);
+            psDeleteCurrentProject.setString(1, customer);
+            psDeleteCurrentProject.executeUpdate();
 
-            System.out.println("Delete drive: " + query_deleteDrive);
+            System.out.println("Deleting current project: " + query_deleteDrive);
 
             result = true;
-
-            prepDeleteDriveStmt.close();
-
-
-        } catch (SQLException e) {
+        } catch (Exception e) {
             eMessage = e.getMessage();
             e.printStackTrace();
         } finally {
-            try {
-                if (connect != null)
-                    connect.close();
-            } catch (SQLException se) {
-                eMessage = se.getMessage();
-                se.printStackTrace();
-            }
+            db_credentials.DB.closeResources(connect, psDeleteCurrentProject);
         }
 
         return result;

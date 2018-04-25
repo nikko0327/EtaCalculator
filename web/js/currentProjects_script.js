@@ -29,7 +29,7 @@ $(document).ready(function () {
         $('#details_change_customer').html("<a href='createCurrentProjects.jsp?customer=" + customer + "&" +
             "jira=" + jira + "&" +
             "dc=" + dc + "&" +
-            "update=true" + "'>Click here to use this Drive for other customer</a>");
+            "update=true" + "'>Click here to use this project configuration for another customer</a>");
         $('#details_modal_customer').html(customer);
         $('#details_modal_jira').html(jira);
         $('#details_modal_dc').html(dc);
@@ -145,7 +145,7 @@ $(document).ready(function () {
         //console.log("Current appliance count: " + current_appliance_count);
 
         if (customer == null || customer == "") {
-            alert("Drive must have project");
+            alert("A project must have a customer.");
             $("#modal_customer").focus();
             return;
         }

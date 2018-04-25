@@ -28,7 +28,7 @@ $(document).ready(function () {
         $('#details_change_customer').html("<a href='createUpcomingProjects.jsp?customer_name=" + customer_name + "&" +
             "estimated_size=" + estimated_size + "&" +
             "jira=" + jira + "&" +
-            "update=true" + "'>Click here to use this Drive for other customer</a>");
+            "update=true" + "'>Click here to use this project configuration for another customer</a>");
         $('#details_modal_customer_name').html(customer_name);
         $('#details_modal_sow_created_date').html(formatDate(sow_created_date));
         $('#details_modal_estimated_size').html(estimated_size);
@@ -147,7 +147,7 @@ $(document).ready(function () {
         var username = $('#username').val();
 
         if (customer_name == null || customer_name == "") {
-            alert("Drive must have project");
+            alert("A project must have a customer.");
             $("#modal_customer_name").focus();
 
             return;
@@ -239,11 +239,11 @@ $(document).ready(function () {
             function (data) {
                 $('#modal_spinner').hide();
                 if ((used + parseInt(appliance_count)) > applianceCount) {
-                    alert("Error: Number of appliance(s) exceeded\n" + "Customer: " + customer_name);
+                    alert("Error: Number of appliances required exceeds appliances available..\n" + "Customer: " + customer_name);
                     $('[data-dismiss="modal"]').click();
                     ReloadPage();
                 } else {
-                    alert("Success: Please check the current projects.\n" + "Customer: " + customer_name + "\n" + "Please delete the row.");
+                    alert("Success: Please check the current projects page.\n" + "Customer: " + customer_name + "\n" + "Delete the upcoming project row once confirmed.");
                     $('[data-dismiss="modal"]').click();
                     ReloadPage();
                 }

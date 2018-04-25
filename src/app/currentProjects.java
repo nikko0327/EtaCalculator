@@ -12,7 +12,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -93,76 +92,9 @@ public class currentProjects extends HttpServlet {
             result = true;
 
             while (rs.next()) {
-//                Map<String, String> map = new HashMap<String, String>();
-//
-//                map.put("customer", rs.getString("customer"));
-//                map.put("jira", rs.getString("jira"));
-//                map.put("dc", rs.getString("dc"));
-//                map.put("data_size", "" + rs.getInt("data_size"));
-//                map.put("import_engr", rs.getString("import_engr"));
-//                map.put("tem", rs.getString("tem"));
-//                map.put("current_stage", rs.getString("current_stage"));
-//                map.put("created_date", rs.getDate("created_date").toString());
-//                map.put("notes", rs.getString("notes"));
-//                map.put("appliance_count", "" + rs.getInt("appliance_count"));
-//                map.put("is_completed", "" + rs.getBoolean("is_completed"));
-//
-//                //Added for Closing Date
-//                if ((rs.getString("created_date") == null) || (rs.getString("created_date") == "")) { //Check if created_date is set to null or blank.
-//                    map.put("closing_date", "Date Not Set");
-//                } else {
-//
-//                    String dataSize = rs.getString("data_size"); //Set variable for calculation
-//                    double dataSizeNum = Double.parseDouble(dataSize); //Convert to double for calculation
-//
-//                    String applianceCount = rs.getString("appliance_count"); //Set variable for calculation
-//                    double applianceCountNum = Double.parseDouble(applianceCount); //Convert to double for calculation
-//
-//                    double calculateClosing = dataSizeNum / (applianceCountNum * 150); //Calculate closing date by number of days from creation.
-//                    int calculatedClosingInt = (int) Math.ceil(calculateClosing); // Round up
-//                    int totalPreProcessingNum = calculatedClosingInt + 14; // Total number of days that takes to comple plus 2 weeks cushion
-//                    int totalProcessingNum = calculatedClosingInt; // Total number of days that takes to comple plus 2 weeks cushion
-//                    int mapping = 30;
-//                    int overallProcess = totalPreProcessingNum + mapping + totalProcessingNum; // Total amout of days required for the process to finish
-//
-//                    System.out.println("Data Size: " + dataSizeNum); // Test run
-//                    System.out.println("Number of Apps: " + applianceCountNum); // Test run
-//                    System.out.println("Pre-processing Days: " + totalPreProcessingNum); // Test run
-//                    System.out.println("Mapping: " + "30"); // Test run
-//                    System.out.println("Processing: " + totalProcessingNum); // Test run
-//                    System.out.println("TOTAL DAYS: " + overallProcess); // Test run
-//
-//                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd"); //Formats the date to "-" in between year month and date
-//                    String dateInString = String.valueOf(rs.getString("created_date")); // Gets the value of created_date and set to string
-//                    String[] splitter = dateInString.split("-"); //Splits into yyyymmdd
-//
-//                    String year = splitter[0];
-//                    int yearInt = Integer.parseInt(year); //Set to integer to be use in Calendar Object
-//                    String month = splitter[1];
-//                    int monthInt = Integer.parseInt(month); //Set to integer to be use in Calendar Object
-//                    String day = splitter[2];
-//                    int dayInt = Integer.parseInt(day); //Set to integer to be use in Calendar Object
-//
-//                    System.out.println(dateInString); //Print for test
-//                    System.out.println(Arrays.toString(splitter));//Print for test
-//
-//                    Calendar calendar = new GregorianCalendar(yearInt, monthInt - 1, dayInt + overallProcess); // Create Calendar object to do calculation
-//                    String calendarFormatter = formatter.format(calendar.getTime()); // format calendar to string to show values to output
-//                    System.out.println("Calendar: " + calendarFormatter); //Test run
-//
-//                    map.put("closing_date", calendarFormatter); // Set closing_date as calendarFormatter
-//
-//                    int betweenTodayAndFinish = daysBetween(calendar.getTime());
-//                    String betweenDaysFromTodayAndFinish = Integer.toString(betweenTodayAndFinish);
-//                    map.put("daysBetweenTodayAndFinish", betweenDaysFromTodayAndFinish); //Getting days between today and finish date.
-//                    System.out.println("Between: " + daysBetween(calendar.getTime()));
-//                    // ./Added for Closing Date
-//                }
-//                // map.put("closing_date", date);
 
                 list.add(getSearchDriveJSONResults(rs));
             }
-
 
             int totalMatches = list.size();
 
@@ -172,7 +104,7 @@ public class currentProjects extends HttpServlet {
             json.accumulate("drives", list);
 
             searchResult = json.toString();
-            System.out.println("Search result:\n" + searchResult);
+            //System.out.println("Search result:\n" + searchResult);
         } catch (SQLException e) {
             eMessage = e.getMessage();
             e.printStackTrace();
@@ -189,11 +121,12 @@ public class currentProjects extends HttpServlet {
     //Method to calculate day in between dates
     public int daysBetween(Date d) {
         Date d1 = new Date();
-        return (int) ((d.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24));
+        int daysBetween = (int) ((d.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24));
+        return (daysBetween > 0) ? daysBetween : 1;
     }
 
     // Duplicate
-    public Map<String, String> getSearchDriveJSONResults(ResultSet rs) throws SQLException, ParseException {
+    public Map<String, String> getSearchDriveJSONResults(ResultSet rs) throws Exception {
         Map<String, String> map = new HashMap<String, String>();
 
         java.sql.Date createdDate = rs.getDate("created_date");

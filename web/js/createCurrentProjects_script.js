@@ -53,17 +53,17 @@ $(document).ready(function () {
                 }
 
                 else {
-                    result = "<p><h3>Drive created in system with following details:</h3>"
-                        + "<br>customer: " + data.customer
-                        + "<br>jira: " + data.jira
-                        + "<br>dc: " + data.dc
-                        + "<br>data_size: " + data.data_size
-                        + "<br>import_engr: " + data.import_engr
-                        + "<br>tem: " + data.tem
-                        + "<br>current_stage: " + data.current_stage
-                        + "<br>Created_date: " + data.created_date
-                        + "<br>notes: " + data.notes
-                        + "<br>Appliace Count: " + data.appliance_count
+                    result = "<p><h3>New current project created in system with following details:</h3>"
+                        + "<br>Customer: " + data.customer
+                        + "<br>Jira: " + data.jira
+                        + "<br>DC: " + data.dc
+                        + "<br>Data size: " + data.data_size
+                        + "<br>Import engineer: " + data.import_engr
+                        + "<br>TEM: " + data.tem
+                        + "<br>Current stage: " + data.current_stage
+                        + "<br>Created date: " + data.created_date
+                        + "<br>Notes: " + data.notes
+                        + "<br>Appliance count: " + data.appliance_count
                 }
 
                 $('#result').append(result);

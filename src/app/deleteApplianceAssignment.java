@@ -12,10 +12,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 public class deleteApplianceAssignment extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -39,52 +37,50 @@ public class deleteApplianceAssignment extends HttpServlet {
      * response)
      */
     protected void doPost(HttpServletRequest request,
-                          HttpServletResponse response) throws ServletException, IOException {
-        appliance = request.getParameter("appliance");
+                          HttpServletResponse response) throws ServletException {
+        try {
+            appliance = request.getParameter("appliance");
 
-        JSONObject json = new JSONObject();
+            JSONObject json = new JSONObject();
 
-        if (removeDriveAndHistory())
-            json.put("result", "success");
-        else
-            json.put("result", eMessage);
+            if (removeAppliance()) {
+                json.put("result", "success");
+            } else {
+                json.put("result", eMessage);
+            }
 
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(json.toString());
-        response.flushBuffer();
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write(json.toString());
+            response.flushBuffer();
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
     }
 
-    public boolean removeDriveAndHistory() {
+    public boolean removeAppliance() {
         boolean result = false;
 
         Connection connect = null;
+        PreparedStatement psDeleteAppliance = null;
+
         try {
             connect = dataSource.getConnection();
 
-            String query_deleteDrive = "delete from appliance_assignment where appliance = '" + appliance + "';";
+            String query_deleteDrive = "delete from appliance_assignment where appliance = ?;";
 
-            PreparedStatement prepDeleteDriveStmt = connect.prepareStatement(query_deleteDrive);
-            int deleteDriveRes = prepDeleteDriveStmt.executeUpdate();
+            psDeleteAppliance = connect.prepareStatement(query_deleteDrive);
+            psDeleteAppliance.setString(1, appliance);
+            psDeleteAppliance.executeUpdate();
 
             System.out.println("Delete drive: " + query_deleteDrive);
 
             result = true;
-
-            prepDeleteDriveStmt.close();
-
-
-        } catch (SQLException e) {
+        } catch (Exception e) {
             eMessage = e.getMessage();
             e.printStackTrace();
         } finally {
-            try {
-                if (connect != null)
-                    connect.close();
-            } catch (SQLException se) {
-                eMessage = se.getMessage();
-                se.printStackTrace();
-            }
+            db_credentials.DB.closeResources(connect, psDeleteAppliance);
         }
 
         return result;

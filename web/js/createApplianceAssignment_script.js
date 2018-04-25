@@ -33,7 +33,7 @@ $(document).ready(function () {
                 }
 
                 else {
-                    result = "<p><h3>Drive created in system with following details:</h3>"
+                    result = "<p><h3>A new appliance was created in system with following details:</h3>"
                         + "<br>Appliance: " + data.appliance
                         + "<br>Current: " + data.current
                         + "<br>Previous: " + data.previous

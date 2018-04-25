@@ -97,28 +97,9 @@ public abstract class DB implements mysql_credentials {
         System.out.println("Retrieving appliances in use with 'select sum(appliance_count) from current_project;'");
         PreparedStatement ps = null;
         ResultSet rs = null;
+
         try {
             ps = connect.prepareStatement("select sum(appliance_count) from current_project;");
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                int count = rs.getInt(1);
-                return (count < 0) ? 0 : count;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            db_credentials.DB.closeResources(ps, rs);
-        }
-        return 0;
-    }
-
-    public static int getCurrentProjectApplianceCount(String primary, Connection connect) {
-        System.out.println("Retrieving appliance count used in project for " + primary + " using 'select sum(appliance_count) from current_project;'");
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-            ps = connect.prepareStatement("select appliance_count from current_project where customer = ?;");
-            ps.setString(1, primary);
             rs = ps.executeQuery();
             if (rs.next()) {
                 int count = rs.getInt(1);

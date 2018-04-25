@@ -84,13 +84,14 @@ $(document).ready(function () {
 
     $(document).on('click', '#modalUpdateButton', function () {
         var appliance = $('#modal_appliance').val();
-        alert("TESTING MODAL_APPLIANCE" + $('#modal_appliance').val());
+        //alert("TESTING MODAL_APPLIANCE" + $('#modal_appliance').val());
+        alert("Appliance " + $('#modal_appliance').val() + " updated.")
         var current = $('#modal_current').val();
         var previous = $('#modal_previous').val();
         var username = $('#username').val();
 
         if (appliance == null || appliance == "") {
-            alert("Drive must have Appliance");
+            alert("An appliance must have a valid IP address.");
             $("#modal_appliance").focus();
 
             return;
@@ -142,7 +143,7 @@ function applianceAssignment() {
             }
             else {
                 // var value = "<p>Total Appliances: " + data.totalMatches +"</p>";
-                var value = "<p>Total Appliances (" + data.totalMatches + ") * 150GB/day: " + data.totalMatches * 150 + " GB per day." + "</p>";
+                var value = "<p>Total appliances (" + data.totalMatches + ") * 150 GB/day = [" + data.totalMatches * 150 + " GB/day]" + "</p>";
                 value += "<table id='drive_table' class='table table-condensed table-hover tablesorter'>";
                 value += "<thead>";
                 value += "<tr style='background-color:#D8D8D8'>";

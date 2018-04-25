@@ -132,44 +132,6 @@ public class login extends HttpServlet implements db_credentials.mysql_credentia
         Connection connect = null;
         try {
 
-            // Change the boolean at the top to see the time elapsed for fetching the connection.
-            if (SPEED_TEST) {
-                System.out.println("Testing loadAuthorizedUsers");
-                long startTime = 0;
-                long endTime = 0;
-
-                // DataSource pooling
-                startTime = System.currentTimeMillis();
-                connect = db_credentials.DB.getConnection();
-                endTime = System.currentTimeMillis();
-                System.out.println("First load: time for static DataSource: " + (endTime - startTime));
-                connect.close();
-
-                System.out.println("--- First load gets rid of bias, first connection call takes longer ---");
-
-                // Driver Manager
-                startTime = System.currentTimeMillis();
-                Class.forName("com.mysql.jdbc.Driver");
-                connect = DriverManager.getConnection(db_url, user_name, password);
-                endTime = System.currentTimeMillis();
-                System.out.println("Time for DriverManager: " + (endTime - startTime));
-                connect.close();
-
-                // DataSource pooling
-                startTime = System.currentTimeMillis();
-                connect = db_credentials.DB.getConnection();
-                endTime = System.currentTimeMillis();
-                System.out.println("Time for static DataSource: " + (endTime - startTime));
-                connect.close();
-
-                // Local resource tag
-                startTime = System.currentTimeMillis();
-                connect = dataSource.getConnection();
-                endTime = System.currentTimeMillis();
-                System.out.println("Time for local resource tag: " + (endTime - startTime));
-                connect.close();
-            }
-
             connect = dataSource.getConnection();
 
             String query_selectUsers = "select * from user_info where login = true;";

@@ -12,15 +12,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 public class deleteUpcomingProject extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private String eMessage;
-
     private String customer_name;
 
     @Resource(name = "jdbc/EtaCalculatorDB")
@@ -39,52 +36,51 @@ public class deleteUpcomingProject extends HttpServlet {
      * response)
      */
     protected void doPost(HttpServletRequest request,
-                          HttpServletResponse response) throws ServletException, IOException {
-        customer_name = request.getParameter("customer_name");
+                          HttpServletResponse response) throws ServletException {
+        try {
+            customer_name = request.getParameter("customer_name");
 
-        JSONObject json = new JSONObject();
+            JSONObject json = new JSONObject();
 
-        if (removeDriveAndHistory())
-            json.put("result", "success");
-        else
-            json.put("result", eMessage);
+            if (removeUpcomingProject()) {
+                json.put("result", "success");
+            } else {
+                json.put("result", eMessage);
+            }
 
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(json.toString());
-        response.flushBuffer();
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write(json.toString());
+            response.flushBuffer();
+
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
     }
 
-    public boolean removeDriveAndHistory() {
+    public boolean removeUpcomingProject() {
         boolean result = false;
 
         Connection connect = null;
+        PreparedStatement psDeleteUpcomingProject = null;
         try {
             connect = dataSource.getConnection();
 
-            String query_deleteDrive = "delete from upcoming_sow where customer_name = '" + customer_name + "';";
+            String query_deleteDrive = "delete from upcoming_sow where customer_name = ?;";
 
-            PreparedStatement prepDeleteDriveStmt = connect.prepareStatement(query_deleteDrive);
-            int deleteDriveRes = prepDeleteDriveStmt.executeUpdate();
+            psDeleteUpcomingProject = connect.prepareStatement(query_deleteDrive);
+            psDeleteUpcomingProject.setString(1, customer_name);
+            psDeleteUpcomingProject.executeUpdate();
 
             System.out.println("Delete drive: " + query_deleteDrive);
 
             result = true;
 
-            prepDeleteDriveStmt.close();
-
-
-        } catch (SQLException e) {
+        } catch (Exception e) {
             eMessage = e.getMessage();
             e.printStackTrace();
         } finally {
-            try {
-                if (connect != null)
-                    connect.close();
-            } catch (SQLException se) {
-                eMessage = se.getMessage();
-                se.printStackTrace();
-            }
+            db_credentials.DB.closeResources(connect, psDeleteUpcomingProject);
         }
 
         return result;

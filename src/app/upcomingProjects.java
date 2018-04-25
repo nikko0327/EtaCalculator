@@ -13,6 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -95,64 +96,6 @@ public class upcomingProjects extends HttpServlet {
             result = true;
 
             while (rs.next()) {
-//                Map<String, String> map = new HashMap<String, String>();
-//
-//                map.put("customer_name", rs.getString("customer_name"));
-//                map.put("sow_created_date", rs.getDate("sow_created_date").toString());
-//                map.put("estimated_size", "" + rs.getInt("estimated_size"));
-//                map.put("jira", rs.getString("jira"));
-//                map.put("dc", rs.getString("dc"));
-//                map.put("tem", rs.getString("tem"));
-//                map.put("notes", rs.getString("notes"));
-//                map.put("expected_start_month", rs.getDate("expected_start_month").toString());
-//                map.put("expected_end_month", rs.getDate("expected_end_month").toString());
-//                map.put("updated_date", rs.getDate("updated_date").toString());
-//
-//                if (rs.getString("expected_start_month").contains("-") || rs.getString("expected_end_month").contains("-")) {
-//
-//                    //Getting days between two dates
-//                    String dayStart = rs.getString("expected_start_month");
-//                    String dayEnd = rs.getString("expected_end_month");
-//
-//                    Calendar cal1 = new GregorianCalendar();
-//                    Calendar cal2 = new GregorianCalendar();
-//
-//                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-//
-//                    Date date = sdf.parse(dayStart);
-//                    cal1.setTime(date);
-//                    date = sdf.parse(dayEnd);
-//                    cal2.setTime(date);
-//                    int numOfDays = daysBetween(cal1.getTime(), cal2.getTime()); // This is the one we need to calculate the appliances needed
-//                    String numberOfDaysString = String.valueOf(numOfDays);
-//                    System.out.println("Days Between " + cal1.getTime() + " and " + cal2.getTime() + ": ");
-//                    System.out.println("Days= " + numOfDays);
-//                    // ./Getting days between two dates
-//
-//                    //Calculating to get Appliances needed START
-//                    final int gigsPerDay = 150; //Number of gigabytes Proofpoint process
-//                    System.out.println("Number of Gigs Per Day: " + gigsPerDay);
-//                    int dateNoPadding = numOfDays - 14; // Taking away 2 weeks of padding
-//                    System.out.println("Date No Padding: " + dateNoPadding);
-//                    int dateNoMapping = dateNoPadding - 30; // Taking away 30 mapping days
-//                    System.out.println("With No Mapping: " + dateNoMapping);
-//                    double dateNoMappingDivTwo = dateNoMapping / 2; // Taking away 30 mapping days
-//                    System.out.println("Divide by 2: " + dateNoMappingDivTwo);
-//                    double estimatedSize = Double.parseDouble(rs.getString("estimated_size"));
-//                    System.out.println("Estimated Size: " + estimatedSize);
-//                    double numberOfGigsPerDayPre = estimatedSize / dateNoMappingDivTwo; // First, divide estimated size / date with no padding and mapping days divide by 2
-//                    double numberOfGigsPerDay = numberOfGigsPerDayPre / gigsPerDay; // Then, divide the outcome to / 150 Gb/day
-//                    System.out.println("Gigs Per Day Before Round Up: " + numberOfGigsPerDay);
-//                    int totalNumberOfGigsNeeded = (int) Math.ceil(numberOfGigsPerDay);
-//                    System.out.println("Total After Round Off: " + totalNumberOfGigsNeeded);
-//                    //Calculating to get Appliances needed END
-//                    String finalOutput = String.valueOf(totalNumberOfGigsNeeded); //Final output we need for getting apps needed
-//                    map.put("apps_needed", finalOutput);
-//                } else {
-//                    map.put("apps_needed", "Dates are not set");
-//                }
-//
-//                list.add(map);
                 list.add(getSearchDriveJSONResults(rs));
             }
 
@@ -206,45 +149,45 @@ public class upcomingProjects extends HttpServlet {
 
         if (expected_start_month.contains("-") || expected_end_month.contains("-")) {
 
-//            //Getting days between two dates
-//            String dayStart = rs.getString("expected_start_month");
-//            String dayEnd = rs.getString("expected_end_month");
-//
-//            Calendar cal1 = new GregorianCalendar();
-//            Calendar cal2 = new GregorianCalendar();
-//
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-//
-//            Date date = sdf.parse(dayStart);
-//            cal1.setTime(date);
-//            date = sdf.parse(dayEnd);
-//            cal2.setTime(date);
-//            int numOfDays = daysBetween(cal1.getTime(), cal2.getTime()); // This is the one we need to calculate the appliances needed
-//            String numberOfDaysString = String.valueOf(numOfDays);
-//            System.out.println("Days Between " + cal1.getTime() + " and " + cal2.getTime() + ": ");
-//            System.out.println("Days= " + numOfDays);
-//            // ./Getting days between two dates
-//
-//            //Calculating to get Appliances needed START
-//            final int gigsPerDay = 150; //Number of gigabytes Proofpoint process
-//            System.out.println("Number of Gigs Per Day: " + gigsPerDay);
-//            int dateNoPadding = numOfDays - 14; // Taking away 2 weeks of padding
-//            System.out.println("Date No Padding: " + dateNoPadding);
-//            int dateNoMapping = dateNoPadding - 30; // Taking away 30 mapping days
-//            System.out.println("With No Mapping: " + dateNoMapping);
-//            double dateNoMappingDivTwo = dateNoMapping / 2; // Taking away 30 mapping days
-//            System.out.println("Divide by 2: " + dateNoMappingDivTwo);
-//            double estimatedSize = Double.parseDouble(rs.getString("estimated_size"));
-//            System.out.println("Estimated Size: " + estimatedSize);
-//            double numberOfGigsPerDayPre = estimatedSize / dateNoMappingDivTwo; // First, divide estimated size / date with no padding and mapping days divide by 2
-//            double numberOfGigsPerDay = numberOfGigsPerDayPre / gigsPerDay; // Then, divide the outcome to / 150 Gb/day
-//            System.out.println("Gigs Per Day Before Round Up: " + numberOfGigsPerDay);
-//            int totalNumberOfGigsNeeded = (int) Math.ceil(numberOfGigsPerDay);
-//            System.out.println("Total After Round Off: " + totalNumberOfGigsNeeded);
-//            //Calculating to get Appliances needed END
-//            String finalOutput = String.valueOf(totalNumberOfGigsNeeded); //Final output we need for getting apps needed
-//            //map.put("apps_needed", finalOutput);
-            map.put("apps_needed", "" + 3);
+            //Getting days between two dates
+            String dayStart = expected_start_month;
+            String dayEnd = expected_end_month;
+
+            Calendar cal1 = new GregorianCalendar();
+            Calendar cal2 = new GregorianCalendar();
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+            Date date = sdf.parse(dayStart);
+            cal1.setTime(date);
+            date = sdf.parse(dayEnd);
+            cal2.setTime(date);
+            int numOfDays = daysBetween(cal1.getTime(), cal2.getTime()); // This is the one we need to calculate the appliances needed
+            //String numberOfDaysString = String.valueOf(numOfDays);
+            System.out.println("Days Between " + cal1.getTime() + " and " + cal2.getTime() + ": ");
+            System.out.println("Days= " + numOfDays);
+            // ./Getting days between two dates
+
+            //Calculating to get Appliances needed START
+            final int gigsPerDay = 150; //Number of gigabytes Proofpoint process
+            System.out.println("Number of Gigs Per Day: " + gigsPerDay);
+            int dateNoPadding = numOfDays - 14; // Taking away 2 weeks of padding
+            System.out.println("Date No Padding: " + dateNoPadding);
+            int dateNoMapping = dateNoPadding - 30; // Taking away 30 mapping days
+            System.out.println("With No Mapping: " + dateNoMapping);
+            double dateNoMappingDivTwo = dateNoMapping / 2; // Taking away 30 mapping days
+            System.out.println("Divide by 2: " + dateNoMappingDivTwo);
+            double estimatedSize = Double.parseDouble(rs.getString("estimated_size"));
+            System.out.println("Estimated Size: " + estimatedSize);
+            double numberOfGigsPerDayPre = estimatedSize / dateNoMappingDivTwo; // First, divide estimated size / date with no padding and mapping days divide by 2
+            double numberOfGigsPerDay = numberOfGigsPerDayPre / gigsPerDay; // Then, divide the outcome to / 150 Gb/day
+            System.out.println("Gigs Per Day Before Round Up: " + numberOfGigsPerDay);
+            int totalNumberOfGigsNeeded = (int) Math.ceil(numberOfGigsPerDay);
+            System.out.println("Total After Round Off: " + totalNumberOfGigsNeeded);
+            //Calculating to get Appliances needed END
+            String finalOutput = String.valueOf(totalNumberOfGigsNeeded); //Final output we need for getting apps needed
+            map.put("apps_needed", finalOutput);
+            //map.put("apps_needed", "" + 3);
         } else {
             map.put("apps_needed", "Dates are not set");
         }
