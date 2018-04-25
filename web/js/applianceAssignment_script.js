@@ -36,7 +36,7 @@ $(document).ready(function () {
         var previous = $('#previous' + id).val();
         var username = $('#username').val();
 
-        bootbox.confirm("Are you sure you want to delete this drive?",
+        bootbox.confirm("Are you sure you want to delete this appliance?",
             function (result) {
                 if (result == true) {
                     $.post("deleteApplianceAssignment",
@@ -49,7 +49,7 @@ $(document).ready(function () {
                             $('#modal_spinner').hide();
 
                             if (data.result == 'success') {
-                                //alert("Drive successfully deleted");
+                                alert("Appliance deleted.");
                                 $('#search_form').submit();
                             }
                             else

@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,12 +47,16 @@ public class customerInfo extends HttpServlet {
 
     public String customer_info(String name) {
 
-        name.trim();
+        name = name.trim();
 
         String customers = "";
         String query_customerInfo = null;
 
         Connection connect = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+
         try {
 
             connect = dataSource.getConnection();
@@ -63,12 +66,11 @@ public class customerInfo extends HttpServlet {
             JSONObject json = new JSONObject();
 
             query_customerInfo = "select * from customer_info " + "where name='" + name + "';";
-
             System.out.println(query_customerInfo);
 
-            PreparedStatement prepStmt = connect.prepareStatement(query_customerInfo);
+            ps = connect.prepareStatement(query_customerInfo);
+            rs = ps.executeQuery();
 
-            ResultSet rs = prepStmt.executeQuery();
             while (rs.next()) {
                 Map<String, String> map = new HashMap<String, String>();
 
@@ -87,19 +89,10 @@ public class customerInfo extends HttpServlet {
 
             System.out.println(customers);
 
-            rs.close();
-            prepStmt.close();
-            connect.close();
-
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (connect != null)
-                    connect.close();
-            } catch (SQLException se) {
-                se.printStackTrace();
-            }
+            db_credentials.DB.closeResources(connect, ps, rs);
         }
 
         return customers;

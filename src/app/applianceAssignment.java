@@ -61,9 +61,9 @@ public class applianceAssignment extends HttpServlet {
 
     public boolean getSearchResult(String appliance, String current, String previous) {
 
-        appliance = appliance.trim();
-        current = current.trim();
-        previous = previous.trim();
+//        appliance = appliance.trim();
+//        current = current.trim();
+//        previous = previous.trim();
 
         boolean result = false;
 
@@ -72,7 +72,6 @@ public class applianceAssignment extends HttpServlet {
         ResultSet rs = null;
 
         try {
-
             connect = dataSource.getConnection();
 
             ArrayList<Map<String, String>> list = new ArrayList<Map<String, String>>();
@@ -113,10 +112,6 @@ public class applianceAssignment extends HttpServlet {
 //
 //                query_searchDrive += " order by current desc;";
 //            }
-
-            // get all drives except the ones returned to customer
-            // query_searchDrive = "select * from drive_info";
-            query_searchDrive = "select * from appliance_assignment";
 
             System.out.println("Search drive: " + query_searchDrive);
 
