@@ -77,6 +77,13 @@
                 </div>
             </div>
 
+            <div class="control-group">
+                <label class="control-label" for="modal_version">Version</label>
+                <div class="controls">
+                    <input type="text" id="modal_version" value="">
+                </div>
+            </div>
+
             <div id="modal_spinner" hidden>
                 <center><i class="icon-spinner icon-spin icon-3x"></i></center>
             </div>
@@ -119,6 +126,27 @@
                 <label class="control-label" for="details_modal_previous">Previous</label>
                 <div class="controls">
                     <p id="details_modal_previous"></p>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="details_modal_updated_by">Updated by</label>
+                <div class="controls">
+                    <p id="details_modal_updated_by"></p>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="details_modal_last_updated">Last updated</label>
+                <div class="controls">
+                    <p id="details_modal_last_updated"></p>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="details_modal_version">Version</label>
+                <div class="controls">
+                    <p id="details_modal_version"></p>
                 </div>
             </div>
 

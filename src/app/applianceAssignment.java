@@ -61,9 +61,9 @@ public class applianceAssignment extends HttpServlet {
 
     public boolean getSearchResult(String appliance, String current, String previous) {
 
-//        appliance = appliance.trim();
-//        current = current.trim();
-//        previous = previous.trim();
+        appliance = appliance.trim();
+        current = current.trim();
+        previous = previous.trim();
 
         boolean result = false;
 
@@ -79,41 +79,41 @@ public class applianceAssignment extends HttpServlet {
             String query_searchDrive = "";
 
             // For Search
-//
-//            if ((appliance.equalsIgnoreCase(null) || appliance.equalsIgnoreCase(""))
-//                    && (current.equalsIgnoreCase(null) || current.equalsIgnoreCase(""))
-//                    && (previous.equalsIgnoreCase(null) || previous.equalsIgnoreCase(""))) {
-//
-//                // get all drives except the ones returned to customer
-//                query_searchDrive = "select * from appliance_assignment " +
-//                        "where appliance <> 'appliance' " +
-//                        "and current <> 'current' " +
-//                        "and previous <> 'previous' " +
-//                        "order by current desc;";
-//            } else {
-//                query_searchDrive = "select * from appliance_assignment where";
-//
-//                if (!(appliance.equalsIgnoreCase(null) || appliance.equalsIgnoreCase("")))
-//                    query_searchDrive += " appliance like '%" + appliance + "%'";
-//
-//                if (!(current.equalsIgnoreCase(null) || current.equalsIgnoreCase(""))) {
-//                    if (query_searchDrive.equalsIgnoreCase("select * from appliance_assignment where"))
-//                        query_searchDrive += " current like '%" + current + "%'";
-//                    else
-//                        query_searchDrive += " and current like '%" + current + "%'";
-//                }
-//
-//                if (!(previous.equalsIgnoreCase(null) || previous.equalsIgnoreCase(""))) {
-//                    if (query_searchDrive.equalsIgnoreCase("select * from appliance_assignment where"))
-//                        query_searchDrive += " previous like '%" + previous + "%'";
-//                    else
-//                        query_searchDrive += " and previous like '%" + previous + "%'";
-//                }
-//
-//                query_searchDrive += " order by current desc;";
-//            }
 
-            System.out.println("Search drive: " + query_searchDrive);
+            if ((appliance.equalsIgnoreCase(null) || appliance.equalsIgnoreCase(""))
+                    && (current.equalsIgnoreCase(null) || current.equalsIgnoreCase(""))
+                    && (previous.equalsIgnoreCase(null) || previous.equalsIgnoreCase(""))) {
+
+                // get all drives except the ones returned to customer
+                query_searchDrive = "select * from appliance_assignment " +
+                        "where appliance <> 'appliance' " +
+                        "and current <> 'current' " +
+                        "and previous <> 'previous' " +
+                        "order by current desc;";
+            } else {
+                query_searchDrive = "select * from appliance_assignment where";
+
+                if (!(appliance.equalsIgnoreCase(null) || appliance.equalsIgnoreCase("")))
+                    query_searchDrive += " appliance like '%" + appliance + "%'";
+
+                if (!(current.equalsIgnoreCase(null) || current.equalsIgnoreCase(""))) {
+                    if (query_searchDrive.equalsIgnoreCase("select * from appliance_assignment where"))
+                        query_searchDrive += " current like '%" + current + "%'";
+                    else
+                        query_searchDrive += " and current like '%" + current + "%'";
+                }
+
+                if (!(previous.equalsIgnoreCase(null) || previous.equalsIgnoreCase(""))) {
+                    if (query_searchDrive.equalsIgnoreCase("select * from appliance_assignment where"))
+                        query_searchDrive += " previous like '%" + previous + "%'";
+                    else
+                        query_searchDrive += " and previous like '%" + previous + "%'";
+                }
+
+                query_searchDrive += " order by current desc;";
+            }
+
+            System.out.println("Search appliances: " + query_searchDrive);
 
             ps = connect.prepareStatement(query_searchDrive);
             rs = ps.executeQuery();
@@ -126,6 +126,9 @@ public class applianceAssignment extends HttpServlet {
                 map.put("appliance", rs.getString("appliance"));
                 map.put("current", rs.getString("current"));
                 map.put("previous", rs.getString("previous"));
+                map.put("version", rs.getString("version"));
+                map.put("last_updated", rs.getDate("last_updated").toString());
+                map.put("updated_by", rs.getString("updated_by"));
                 list.add(map);
             }
 

@@ -9,9 +9,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
-import java.io.IOException;
 import java.io.InputStream;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 @WebServlet("/uploadServlet12")
 
@@ -22,6 +24,10 @@ public class createApplianceAssignment extends HttpServlet {
     private String appliance;
     private String current;
     private String previous;
+    private String version;
+    private String updated_by;
+    private JSONObject json = new JSONObject();
+
 
     @Resource(name = "jdbc/EtaCalculatorDB")
     private DataSource dataSource;
@@ -40,74 +46,76 @@ public class createApplianceAssignment extends HttpServlet {
      * response)
      */
     protected void doPost(HttpServletRequest request,
-                          HttpServletResponse response) throws ServletException, IOException {
+                          HttpServletResponse response) throws ServletException {
 
         System.out.println("--- createApplianceAssignment ---");
 
-        appliance = request.getParameter("appliance");
-        current = request.getParameter("current");
-        previous = request.getParameter("previous");
+        try {
+            appliance = request.getParameter("appliance");
+            current = request.getParameter("current");
+            previous = request.getParameter("previous");
+            version = request.getParameter("version");
+            updated_by = request.getParameter("updated_by");
 
-        String latestDrive;
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
 
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
+            if (createApplianceAssignment()) {
 
-        if (createDriveAndHistory()) {
-            latestDrive = getCreatedDrive();
+                response.getWriter().write(json.toString());
+                //System.out.println("latest drive = " + latestDrive);
+            } else {
+                //JSONObject json = new JSONObject();
+                json.put("message", eMessage);
+                response.getWriter().write(json.toString());
+            }
 
-            response.getWriter().write(latestDrive);
-            //System.out.println("latest drive = " + latestDrive);
-        } else {
-            JSONObject json = new JSONObject();
-            json.put("message", eMessage);
-            response.getWriter().write(json.toString());
+            response.flushBuffer();
+        } catch (Exception e) {
+            throw new ServletException(e);
         }
-
-        response.flushBuffer();
     }
 
-    private boolean createDriveAndHistory() {
+    private boolean createApplianceAssignment() {
 
         boolean result = false;
         Connection connect = null;
-        PreparedStatement prepCreateSprintStmt = null;
+        PreparedStatement psNewAppliance = null;
         try {
-            java.util.Date currentDatetime = new java.util.Date();
-            java.sql.Timestamp sqlTime = new Timestamp(currentDatetime.getTime());
 
+            Date now = now();
             connect = dataSource.getConnection();
 
             String query_createSprint;
 
-            query_createSprint = "insert into appliance_assignment (appliance, current, previous) values (?,?,?);";
+            query_createSprint = "insert into appliance_assignment (appliance, current, previous, updated_by, last_updated, version) values (?,?,?,?,?,?);";
 
-            prepCreateSprintStmt = connect.prepareStatement(query_createSprint);
+            psNewAppliance = connect.prepareStatement(query_createSprint);
 
-            prepCreateSprintStmt.setString(1, appliance);
-            prepCreateSprintStmt.setString(2, current);
-            prepCreateSprintStmt.setString(3, previous);
+            psNewAppliance.setString(1, appliance);
+            psNewAppliance.setString(2, current);
+            psNewAppliance.setString(3, previous);
+            psNewAppliance.setString(4, updated_by);
+            psNewAppliance.setDate(5, now);
+            psNewAppliance.setString(6, version);
 
-            int createSprintStmtRes = prepCreateSprintStmt.executeUpdate();
+            psNewAppliance.executeUpdate();
 
             System.out.println("Create drive: " + query_createSprint);
 
+            json.put("appliance", appliance);
+            json.put("current", current);
+            json.put("previous", previous);
+            json.put("updated_by", updated_by);
+            json.put("last_updated", now.toString());
+            json.put("version", version);
+
             result = true;
-        } catch (SQLException e) {
+        } catch (Exception e) {
             eMessage = e.getMessage();
             e.printStackTrace();
         } finally {
-            try {
-                if (connect != null) {
-                    connect.close();
-                }
-                if (prepCreateSprintStmt != null) {
-                    prepCreateSprintStmt.close();
-                }
-            } catch (SQLException se) {
-                eMessage = se.getMessage();
-                se.printStackTrace();
-            }
+            db_credentials.DB.closeResources(connect, psNewAppliance);
         }
 
         return result;
@@ -115,7 +123,7 @@ public class createApplianceAssignment extends HttpServlet {
 
     private String getCreatedDrive() {
 
-        JSONObject json = new JSONObject();
+        json = new JSONObject();
         Connection connect = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -123,9 +131,10 @@ public class createApplianceAssignment extends HttpServlet {
         try {
             connect = dataSource.getConnection();
 
-            String query_getDriveById = "select * from appliance_assignment where appliance ='" + appliance + "';";
+            String query_getDriveById = "select * from appliance_assignment where appliance = ?;";
 
             prepStmt = connect.prepareStatement(query_getDriveById);
+            prepStmt.setString(1, appliance);
             rs = prepStmt.executeQuery();
 
             while (rs.next()) {
@@ -133,26 +142,19 @@ public class createApplianceAssignment extends HttpServlet {
                 json.put("current", current);
                 json.put("previous", previous);
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             eMessage = e.getMessage();
             e.printStackTrace();
         } finally {
-            try {
-                if (connect != null) {
-                    connect.close();
-                }
-                if (prepStmt != null) {
-                    prepStmt.close();
-                }
-                if (rs != null) {
-                    rs.close();
-                }
-            } catch (SQLException se) {
-                eMessage = se.getMessage();
-                se.printStackTrace();
-            }
+            db_credentials.DB.closeResources(connect, prepStmt, rs);
         }
 
         return json.toString();
+    }
+
+    public static Date now() {
+        java.util.Date now = new java.util.Date();
+        java.sql.Date sqlNow = new Date(now.getTime());
+        return sqlNow;
     }
 }

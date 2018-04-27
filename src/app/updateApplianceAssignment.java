@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 
 public class updateApplianceAssignment extends HttpServlet {
@@ -18,6 +19,9 @@ public class updateApplianceAssignment extends HttpServlet {
     private String appliance;
     private String current;
     private String previous;
+    private String version;
+    private String updated_by;
+    //private JSONObject json = new JSONObject();
 
     @Resource(name = "jdbc/EtaCalculatorDB")
     private DataSource dataSource;
@@ -42,6 +46,8 @@ public class updateApplianceAssignment extends HttpServlet {
             appliance = request.getParameter("appliance");
             current = request.getParameter("current");
             previous = request.getParameter("previous");
+            version = request.getParameter("version");
+            updated_by = request.getParameter("updated_by");
 
             JSONObject json = new JSONObject();
 
@@ -69,18 +75,22 @@ public class updateApplianceAssignment extends HttpServlet {
         try {
             connect = dataSource.getConnection();
 
-            //Date now = now();
+            Date now = now();
 
-            String query_updateDrive = "update appliance_assignment set appliance = ?, current = ?, previous = ?" +
-                    "where appliance = '" + appliance + "'";
+            String query_updateDrive = "update appliance_assignment set appliance = ?, current = ?, previous = ?, " +
+                    "version = ?, updated_by = ?, last_updated = ? where appliance = ?";
 
             updateApplianceAssignment = connect.prepareStatement(query_updateDrive);
             updateApplianceAssignment.setString(1, appliance);
             updateApplianceAssignment.setString(2, current);
             updateApplianceAssignment.setString(3, previous);
+            updateApplianceAssignment.setString(4, version);
+            updateApplianceAssignment.setString(5, updated_by);
+            updateApplianceAssignment.setDate(6, now);
+            updateApplianceAssignment.setString(7, appliance);
             updateApplianceAssignment.executeUpdate();
 
-            System.out.println("Update Assignment: " + query_updateDrive);
+            System.out.println("Update assignment: " + query_updateDrive);
 
 //            String query_selectDriveById = "select * from appliance_assignment where appliance = '" + appliance + "'";
 //            PreparedStatement prepSelectDriveStmt = connect.prepareStatement(query_selectDriveById);

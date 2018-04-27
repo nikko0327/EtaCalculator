@@ -50,6 +50,13 @@
             </div>
         </div>
 
+        <div class="control-group">
+            <label class="control-label" for="version">Version</label>
+            <div class="controls">
+                <input type="text" id="version" title="Previous HERE" placeholder="Version">
+            </div>
+        </div>
+
 
         <div class="control-group">
             <div class="controls">
@@ -63,7 +70,7 @@
             <center><i class="icon-spinner icon-spin icon-3x"></i></center>
         </div>
 
-        <p id="error-message" class="text-error" hidden><b>Missing Value/s</b></p>
+        <p id="error-message" class="text-error" hidden><b>Missing value(s)</b></p>
     </form>
 </div>
 

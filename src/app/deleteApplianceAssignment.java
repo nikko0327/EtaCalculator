@@ -73,7 +73,7 @@ public class deleteApplianceAssignment extends HttpServlet {
             psDeleteAppliance.setString(1, appliance);
             psDeleteAppliance.executeUpdate();
 
-            System.out.println("Delete drive: " + query_deleteDrive);
+            System.out.println("Delete appliance: " + query_deleteDrive);
 
             result = true;
         } catch (Exception e) {
