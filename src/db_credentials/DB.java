@@ -21,7 +21,7 @@ public abstract class DB implements mysql_credentials {
 
             System.out.println("Connection via DataSource successful.");
 
-        } catch (SQLException sql) {
+        } catch (Exception sql) {
 
             System.out.println("DataSource cannot retrieve a connection, trying DriverManager instead.");
 
@@ -39,10 +39,6 @@ public abstract class DB implements mysql_credentials {
                 e.printStackTrace();
             }
 
-        } catch (Exception e) {
-            System.out.println("getC");
-            System.out.println("Some other error has occurred with the DataSource.");
-            e.printStackTrace();
         } finally {
 
         }

@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 
 public class deleteApplianceAssignment extends HttpServlet {
@@ -20,6 +21,10 @@ public class deleteApplianceAssignment extends HttpServlet {
     private String eMessage;
 
     private String appliance;
+    private String deleted_by;
+    private String current;
+    private String previous;
+    private String version;
 
     @Resource(name = "jdbc/EtaCalculatorDB")
     private DataSource dataSource;
@@ -40,6 +45,10 @@ public class deleteApplianceAssignment extends HttpServlet {
                           HttpServletResponse response) throws ServletException {
         try {
             appliance = request.getParameter("appliance");
+            deleted_by = request.getParameter("deleted_by");
+            version = request.getParameter("version");
+            current = request.getParameter("current");
+            previous = request.getParameter("previous");
 
             JSONObject json = new JSONObject();
 
@@ -75,6 +84,7 @@ public class deleteApplianceAssignment extends HttpServlet {
 
             System.out.println("Delete appliance: " + query_deleteDrive);
 
+            sendEmail(now());
             result = true;
         } catch (Exception e) {
             eMessage = e.getMessage();
@@ -84,5 +94,24 @@ public class deleteApplianceAssignment extends HttpServlet {
         }
 
         return result;
+    }
+
+    public static Date now() {
+        java.util.Date now = new java.util.Date();
+        java.sql.Date sqlNow = new Date(now.getTime());
+        return sqlNow;
+    }
+
+    @SuppressWarnings("Duplicates")
+    private void sendEmail(Date date) {
+        ApplianceEmail email = new ApplianceEmail();
+        email.setApplianceIP(appliance);
+        email.setApplianceStatus(ApplianceEmail.DELETED);
+        email.setCurrent(current);
+        email.setPrevious(previous);
+        email.setTimestamp(new java.sql.Timestamp(date.getTime()));
+        email.setUpdater(deleted_by);
+        email.setVersion(version);
+        EmailNotifier.pingAllTheThings(email);
     }
 }

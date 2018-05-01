@@ -16,7 +16,7 @@
 <div id="search_options">
     <%--<h1 style="text-align: center"><i class="icon-search"></i> Search Drive</h1>--%>
     <form class="form-horizontal" id="search_form" style="text-align: center">
-        <input placeholder="Appliance" type="text" required pattern="^[^']*$" name="appliance" id="appliance"
+        <input placeholder="Appliance" type="text" pattern="^[^']*$" name="appliance" id="appliance"
                title="No quotes allowed." style="height: inherit">
         <input placeholder="current" type="text" name="current" id="current" style="height: inherit">
         <input placeholder="previous" type="text" name="previous" id="previous" style="height: inherit">
@@ -102,7 +102,7 @@
 <div id="detailsModal" class="modal hide fade in" style="display: none;">
     <div class="modal-header">
         <a class="close" data-dismiss="modal">?</a>
-        <h3>Drive Details</h3>
+        <h3>Appliance Details</h3>
         <div id="details_change_customer"></div>
     </div>
 

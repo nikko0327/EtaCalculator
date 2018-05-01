@@ -96,8 +96,8 @@ public class updateApplianceAssignment extends HttpServlet {
 //            PreparedStatement prepSelectDriveStmt = connect.prepareStatement(query_selectDriveById);
 //            ResultSet selectDriveRes = prepSelectDriveStmt.executeQuery();
 
+            sendEmail(now);
             result = true;
-
         } catch (Exception e) {
             eMessage = e.getMessage();
             e.printStackTrace();
@@ -112,5 +112,17 @@ public class updateApplianceAssignment extends HttpServlet {
         java.util.Date now = new java.util.Date();
         java.sql.Date sqlNow = new java.sql.Date(now.getTime());
         return sqlNow;
+    }
+
+    private void sendEmail(Date date) {
+        ApplianceEmail email = new ApplianceEmail();
+        email.setApplianceIP(appliance);
+        email.setApplianceStatus(ApplianceEmail.UPDATED);
+        email.setCurrent(current);
+        email.setPrevious(previous);
+        email.setTimestamp(new java.sql.Timestamp(date.getTime()));
+        email.setUpdater(updated_by);
+        email.setVersion(version);
+        EmailNotifier.pingAllTheThings(email);
     }
 }

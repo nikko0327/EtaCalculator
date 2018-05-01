@@ -110,6 +110,7 @@ public class createApplianceAssignment extends HttpServlet {
             json.put("last_updated", now.toString());
             json.put("version", version);
 
+            sendEmail(now);
             result = true;
         } catch (Exception e) {
             eMessage = e.getMessage();
@@ -156,5 +157,17 @@ public class createApplianceAssignment extends HttpServlet {
         java.util.Date now = new java.util.Date();
         java.sql.Date sqlNow = new Date(now.getTime());
         return sqlNow;
+    }
+
+    private void sendEmail(Date date) {
+        ApplianceEmail email = new ApplianceEmail();
+        email.setApplianceIP(appliance);
+        email.setApplianceStatus(ApplianceEmail.CREATED);
+        email.setCurrent(current);
+        email.setPrevious(previous);
+        email.setTimestamp(new java.sql.Timestamp(date.getTime()));
+        email.setUpdater(updated_by);
+        email.setVersion(version);
+        EmailNotifier.pingAllTheThings(email);
     }
 }

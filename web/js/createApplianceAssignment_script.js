@@ -29,7 +29,7 @@ $(document).ready(function () {
                 $('#createApplianceAssignment').hide();
                 $('#result').empty();
 
-                if (data.appliance == undefined) {
+                if (data.appliance == undefined || data.appliance == null) {
                     result = '<p><h3>Error:</h3>'
                         + '<br>' + data.message
                         + '</p>';

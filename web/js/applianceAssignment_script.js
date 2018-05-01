@@ -24,6 +24,10 @@ $(document).ready(function () {
         $('#details_modal_appliance').html(appliance);
         $('#details_modal_current').html(current);
         $('#details_modal_previous').html(previous);
+        $('#details_modal_updated_by').html(updated_by);
+        $('#details_modal_last_updated').html(last_updated);
+        $('#details_modal_version').html(version);
+
         $('#details_modal_spinner').hide();
         $('#detailsModal').modal();
     });
@@ -35,6 +39,7 @@ $(document).ready(function () {
         var current = $('#current' + id).val();
         var previous = $('#previous' + id).val();
         var username = $('#username').val();
+        var version = $('#version' + id).val();
 
         bootbox.confirm("Are you sure you want to delete this appliance?",
             function (result) {
@@ -43,7 +48,9 @@ $(document).ready(function () {
                         {
                             appliance: appliance,
                             current: current,
-                            previous: previous
+                            previous: previous,
+                            deleted_by: username,
+                            version: version
                         },
                         function (data) {
                             $('#modal_spinner').hide();
