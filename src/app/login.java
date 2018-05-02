@@ -139,7 +139,8 @@ public class login extends HttpServlet {
 
             connect = dataSource.getConnection();
 
-            String query_selectUsers = "select * from user_info where login = true;";
+            //String query_selectUsers = "select * from user_info where login = true;";
+            String query_selectUsers = "select * from user_info where login = 'Yes';";
 
             psSelectUsers = connect.prepareStatement(query_selectUsers);
             rs = psSelectUsers.executeQuery();

@@ -82,7 +82,8 @@ public abstract class EmailNotifier {
 
         try {
             connect = db_credentials.DB.getConnection();
-            psSelectUser = connect.prepareStatement("SELECT username FROM user_info WHERE notification=true;");
+            //psSelectUser = connect.prepareStatement("SELECT username FROM user_info WHERE notification=true;");
+            psSelectUser = connect.prepareStatement("SELECT username FROM user_info WHERE notification='Yes';");
             rs = psSelectUser.executeQuery();
 
             while (rs.next()) {

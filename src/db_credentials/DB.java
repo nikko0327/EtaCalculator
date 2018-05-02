@@ -72,13 +72,14 @@ public abstract class DB implements mysql_credentials {
     }
 
     public static int getApplianceCount(Connection connect) {
-        System.out.println("Retrieving appliance count with 'select count(*) from appliance_assignment;'");
+        System.out.print("Retrieving appliance count with 'select count(*) from appliance_assignment;'\nResult: ");
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
             ps = connect.prepareStatement("select count(*) from appliance_assignment;");
             rs = ps.executeQuery();
             if (rs.next()) {
+                System.out.println(rs.getInt(1));
                 return rs.getInt(1);
             }
         } catch (Exception e) {
