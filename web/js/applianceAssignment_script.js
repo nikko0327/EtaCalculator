@@ -25,7 +25,7 @@ $(document).ready(function () {
         $('#details_modal_current').html(current);
         $('#details_modal_previous').html(previous);
         $('#details_modal_updated_by').html(updated_by);
-        $('#details_modal_last_updated').html(last_updated);
+        $('#details_modal_last_updated').html(formatDate(last_updated));
         $('#details_modal_version').html(version);
 
         $('#details_modal_spinner').hide();
@@ -183,7 +183,7 @@ function applianceAssignment() {
                         value += "<td>" + v.current + "</td>";
                         value += "<td>" + v.previous + "</td>";
                         value += "<td>" + v.updated_by + "</td>";
-                        value += "<td>" + v.last_updated + "</td>";
+                        value += "<td>" + formatDate(v.last_updated) + "</td>";
                         value += "<td>" + v.version + "</td>";
 
                         value += "<td><button name ='updateButton' class='btn btn-mini' id='update_" + i + "'><i class='icon-edit'></i></button>";
@@ -196,7 +196,7 @@ function applianceAssignment() {
                             "<input type='hidden' id='current" + i + "' value='" + v.current + "'>" +
                             "<input type='hidden' id='previous" + i + "' value='" + v.previous + "'>" +
                             "<input type='hidden' id='updated_by" + i + "' value='" + v.updated_by + "'>" +
-                            "<input type='hidden' id='last_updated" + i + "' value='" + v.last_updated + "'>" +
+                            "<input type='hidden' id='last_updated" + i + "' value='" + formatDate(v.last_updated) + "'>" +
                             "<input type='hidden' id='version" + i + "' value='" + v.version + "'>" +
                             "</td>";
                     }
@@ -233,6 +233,19 @@ function getValuesById(id) {
     updated_by = $('#updated_by' + id).val();
     last_updated = $('#last_updated' + id).val();
     version = $('#version' + id).val();
+}
+
+//Formatting date from yyyy-MM-dd to MMMM-dd-yyyy
+function formatDate(d) {
+    d += " PST"; // Can change timezones at will, EDT, EST, etc.
+    const months = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+    var date = new Date(d);
+    var month = months[date.getMonth()];
+    var day = date.getDate();
+    return (month + " " + day + ", " + date.getFullYear());
+    //return (date.getMonth() + 1) + '/' + (date.getDate() + 1) + '/' + date.getFullYear();
 }
 
 

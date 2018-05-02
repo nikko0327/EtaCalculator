@@ -28,7 +28,7 @@ import java.util.Set;
 /**
  * Servlet implementation class login
  */
-public class login extends HttpServlet implements db_credentials.mysql_credentials {
+public class login extends HttpServlet {
     private static final boolean SPEED_TEST = false;
     private static final long serialVersionUID = 1L;
     private String eMessage;
@@ -133,7 +133,7 @@ public class login extends HttpServlet implements db_credentials.mysql_credentia
 
     private void loadAuthorizedUsers() {
         Connection connect = null;
-        PreparedStatement prepSelectUsersStmt = null;
+        PreparedStatement psSelectUsers = null;
         ResultSet rs = null;
         try {
 
@@ -141,8 +141,8 @@ public class login extends HttpServlet implements db_credentials.mysql_credentia
 
             String query_selectUsers = "select * from user_info where login = true;";
 
-            prepSelectUsersStmt = connect.prepareStatement(query_selectUsers);
-            rs = prepSelectUsersStmt.executeQuery();
+            psSelectUsers = connect.prepareStatement(query_selectUsers);
+            rs = psSelectUsers.executeQuery();
 
             while (rs.next()) {
                 users.add(rs.getString("username"));
@@ -154,7 +154,7 @@ public class login extends HttpServlet implements db_credentials.mysql_credentia
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            db_credentials.DB.closeResources(connect, prepSelectUsersStmt, rs);
+            db_credentials.DB.closeResources(connect, psSelectUsers, rs);
         }
     }
 }

@@ -445,10 +445,17 @@ function ReloadPage() {
     location.reload();
 };
 
-//Formatting date from yyyy-MM-dd to M/dd/yyyy
+//Formatting date from yyyy-MM-dd to MMMM-dd-yyyy
 function formatDate(d) {
+    d += " PST"; // Can change timezones at will, EDT, EST, etc.
+    const months = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
     var date = new Date(d);
-    return (date.getMonth() + 1) + '/' + (date.getDate()) + '/' + date.getFullYear();
+    var month = months[date.getMonth()];
+    var day = date.getDate();
+    return (month + " " + day + ", " + date.getFullYear());
+    //return (date.getMonth() + 1) + '/' + (date.getDate() + 1) + '/' + date.getFullYear();
 }
 
 

@@ -96,7 +96,7 @@ public class currentProjects extends HttpServlet {
                 list.add(getSearchDriveJSONResults(rs));
             }
 
-            int totalMatches = list.size();
+            //int totalMatches = list.size();
 
             JSONObject json = new JSONObject();
             json.accumulate("totalMatches", counter);
@@ -143,6 +143,7 @@ public class currentProjects extends HttpServlet {
         map.put("tem", rs.getString("tem"));
         map.put("current_stage", rs.getString("current_stage"));
         map.put("created_date", createdDate.toString());
+        System.out.println("---***--- created date: " + createdDate.toString());
         map.put("notes", rs.getString("notes"));
         map.put("appliance_count", "" + applianceCount);
         map.put("current_appliance_count", "" + applianceCount);

@@ -69,6 +69,9 @@ public class updateUpcomingProject extends HttpServlet {
             if (expected_start_month.after(expected_end_month)) {
                 eMessage = "The expected start date is after the expected end date.";
                 json.put("result", eMessage);
+            } else if (daysBetween(expected_start_month, expected_end_month) <= 45) {
+                eMessage = "The start date and end dates are too close to each other.\nLess than 45 days would require an unfeasible amount of appliances.";
+                json.put("result", eMessage);
             } else if (updateUpcomingProject()) {
                 json.put("result", "success");
             } else {
@@ -139,5 +142,10 @@ public class updateUpcomingProject extends HttpServlet {
         java.util.Date now = new java.util.Date();
         java.sql.Date sqlNow = new Date(now.getTime());
         return sqlNow;
+    }
+
+    //Method to calculate day in between dates
+    public long daysBetween(Date a, Date b) {
+        return Math.abs((a.getTime() - b.getTime()) / (60 * 60 * 24 * 1000));
     }
 }

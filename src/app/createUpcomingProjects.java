@@ -70,7 +70,7 @@ public class createUpcomingProjects extends HttpServlet {
             expected_end_month = stringToDate(request.getParameter("expected_end_month"));
 
             // updated_date = request.getParameter("updated_date");
-            apps_needed = (request.getParameter("apps_needed") == null) ? 0 : Integer.parseInt(request.getParameter("apps_needed"));
+            apps_needed = calculateAppliancesNeeded(expected_start_month, expected_end_month, estimated_size);
 
             String latestDrive;
 
@@ -83,8 +83,10 @@ public class createUpcomingProjects extends HttpServlet {
                 eMessage = "The expected start date is after the expected end date.";
                 json.put("message", eMessage);
                 response.getWriter().write(json.toString());
-                response.flushBuffer();
-                return;
+            } else if (apps_needed < 1) {
+                eMessage = "The start date and end dates are too close to each other.\nLess than 45 days would require an unfeasible amount of appliances.";
+                json.put("message", eMessage);
+                response.getWriter().write(json.toString());
             } else if (createUpcomingProject()) {
                 //latestDrive = getCreatedUpcomingProject();
                 //response.getWriter().write(latestDrive);
@@ -146,7 +148,7 @@ public class createUpcomingProjects extends HttpServlet {
             newestCreatedUpcomingProjectJSON.put("expected_start_month", expected_start_month.toString());
             newestCreatedUpcomingProjectJSON.put("expected_end_month", expected_end_month.toString());
             newestCreatedUpcomingProjectJSON.put("updated_date", sqlNow.toString());
-            //newestCreatedUpcomingProjectJSON.put("apps_needed", apps_needed);
+            newestCreatedUpcomingProjectJSON.put("apps_needed", apps_needed);
         } catch (Exception e) {
             eMessage = e.getMessage();
             e.printStackTrace();
@@ -194,6 +196,33 @@ public class createUpcomingProjects extends HttpServlet {
         }
 
         return json.toString();
+    }
+
+    @SuppressWarnings("Duplicates")
+    public int daysBetween(java.util.Date d1, java.util.Date d2) {
+        return (int) Math.abs(((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)));
+    }
+
+    @SuppressWarnings("Duplicates")
+    public int calculateAppliancesNeeded(java.util.Date start, java.util.Date end, int estimatedSize) {
+        int daysBetween = daysBetween(start, end);
+        final int gigsPerDay = 150; // Amount of data Proofpoint appliances can process per day.
+        int noPadding = daysBetween - 14; // Take away 2 weeks of padding
+        if (noPadding < 1) {
+            return 0;
+        }
+        int noMapping = noPadding - 30; // Take away 30 days of mapping
+        noMapping /= 2;
+        if (noMapping < 1) {
+            return 0;
+        }
+        double preliminary = estimatedSize / noMapping;
+        System.out.println("Estimated size/days after no mapping: " + preliminary);
+        preliminary /= gigsPerDay;
+        System.out.println("Number of appliances before rounding: " + preliminary);
+        int result = (int) Math.ceil(preliminary);
+        System.out.println("Number of appliances after rounding: " + result);
+        return result;
     }
 
     public Date stringToDate(String date) throws ParseException {

@@ -169,9 +169,10 @@ public class createCurrentProjects extends HttpServlet {
         try {
             connect = dataSource.getConnection();
 
-            String query_getDriveById = "select * from current_project where customer ='" + customer + "';";
+            String query_getDriveById = "select * from current_project where customer =?;";
 
             psSearchCurrentProjects = connect.prepareStatement(query_getDriveById);
+            psSearchCurrentProjects.setString(1, customer);
             rs = psSearchCurrentProjects.executeQuery();
 
             while (rs.next()) {
@@ -187,9 +188,6 @@ public class createCurrentProjects extends HttpServlet {
                 json.put("appliance_count", appliance_count);
                 json.put("is_completed", (is_completed) ? "Yes" : "No");
             }
-        } catch (SQLException e) {
-            eMessage = e.getMessage();
-            e.printStackTrace();
         } catch (Exception e) {
             eMessage = e.getMessage();
             e.printStackTrace();

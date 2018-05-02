@@ -32,7 +32,7 @@
             <label class="control-label" for="customer">Customer</label>
             <div class="controls">
                 <input type="text" required pattern="^[^']*$" id="customer" title="No quotations allowed"
-                       placeholder="New Appliance" required>
+                       placeholder="Customer name" required>
             </div>
         </div>
 
@@ -54,7 +54,7 @@
         <div class="control-group">
             <label class="control-label" for="data_size">Data Size</label>
             <div class="controls">
-                <input type="number" id="data_size" min="0" step="1" title="Previous HERE" placeholder="Data Size"
+                <input type="number" id="data_size" min="0" step="1" title="Previous HERE" placeholder="Data size"
                        required>
             </div>
         </div>
@@ -94,7 +94,7 @@
             <label class="control-label" for="tem">Appliance Count</label>
             <div class="controls">
                 <input type="number" id="appliance_count" min="1" title="Must be at least 1"
-                       placeholder="Number of Appliance(s)"
+                       placeholder="Number of appliance(s)"
                        required>
             </div>
         </div>
