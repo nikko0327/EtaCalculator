@@ -48,20 +48,3 @@ dc VARCHAR(50) DEFAULT NULL,
 tem VARCHAR(50) DEFAULT NULL,
 notes VARCHAR(256) DEFAULT NULL
 );
-
-
-INSERT INTO user_info values(
-'mihuang', true, false);
-
-INSERT INTO upcoming_sow values(
-'Tesla',
-NOW(),
-2048,
-'sample jira',
-'sample dc',
-'Aimee',
-'Database init dummy data',
-'2018-04-30',
-'2018-05-30',
-NOW(),
-0);
