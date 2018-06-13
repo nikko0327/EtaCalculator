@@ -23,6 +23,10 @@ $(document).ready(function () {
         e.stopPropagation();
     });
 
+    $("#create_new_current_project").click(function () {
+        window.location.href = 'createCurrentProjects.jsp';
+    });
+
     $(document).on('click', '#drive_table tr', function () {
         var id = $(this).attr('id').replace('tr_', '');
         var estimate = getValuesById(id);
@@ -401,15 +405,23 @@ function drawChart() {
 
 // For charting End
 
-//Formatting date from yyyy-MM-dd to MMMM-dd-yyyy
 function formatDate(d) {
-    d += " PST";
+    if (d == null || d == undefined || d == '') {
+        return "";
+    }
+    //alert(d);
+
+    // d += " PST"; // Can change timezones at will, EDT, EST, etc.
     const months = ["January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"
     ];
     var date = new Date(d);
+    date = new Date(date.getTime() + date.getTimezoneOffset() * 60 * 1000);
+    //alert(date.toString());
     var month = months[date.getMonth()];
     var day = date.getDate();
+
     return (month + " " + day + ", " + date.getFullYear());
     //return (date.getMonth() + 1) + '/' + (date.getDate() + 1) + '/' + date.getFullYear();
+    //return d;
 }

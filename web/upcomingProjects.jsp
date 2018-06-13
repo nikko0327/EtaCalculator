@@ -12,7 +12,8 @@
 <div id="search_options">
     <h1>Upcoming Project Sheet</h1>
     <div>
-        <button class="btn btn-default"><a href="createUpcomingProjects.jsp">Add Upcoming Project</a></button>
+        <button id="create_new_upcoming" class="btn btn-default">
+            <a href="createUpcomingProjects.jsp">Add Upcoming Project</a></button>
     </div>
     <br>
     <form class="form-horizontal" id="search_form">

@@ -10,7 +10,8 @@
 <br>
 <h1 style="text-align: center">Appliance Assignment Sheet
     <div>
-        <button class="btn btn-default"><a href="createApplianceAssignment.jsp">Add Appliance Assignment</a></button>
+        <button class="btn btn-default" id="create_new_appliance">
+            <a href="createApplianceAssignment.jsp">Add Appliance Assignment</a></button>
     </div>
 </h1>
 <div id="search_options">

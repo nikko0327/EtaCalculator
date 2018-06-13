@@ -8,6 +8,19 @@ import java.sql.*;
 public abstract class DB implements mysql_credentials {
     private static final boolean PRINT_STATUS = true;
 
+//    public static Connection getConnection() {
+//        Connection c = null;
+//        try {
+//            Class.forName("com.mysql.jdbc.Driver");
+//            c = DriverManager.getConnection(db_url, user_name, password);
+//            System.out.println("Password: " + password);
+//            return c;
+//        } catch (Exception e) {
+//            System.out.println(e.getMessage());
+//        }
+//        return c;
+//    }
+
     public static Connection getConnection() {
 
         Connection c = null;

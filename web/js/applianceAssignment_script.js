@@ -13,6 +13,10 @@ $(document).ready(function () {
         e.stopPropagation();
     });
 
+    $("#create_new_appliance").click(function () {
+        window.location.href = 'createApplianceAssignment.jsp';
+    });
+
     $(document).on('click', '#drive_table tr', function () {
         var id = $(this).attr('id').replace('tr_', '');
         getValuesById(id);
@@ -237,11 +241,12 @@ function getValuesById(id) {
 
 //Formatting date from yyyy-MM-dd to MMMM-dd-yyyy
 function formatDate(d) {
-    d += " PST"; // Can change timezones at will, EDT, EST, etc.
+    //d += " PST"; // Can change timezones at will, EDT, EST, etc.
     const months = ["January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"
     ];
     var date = new Date(d);
+    date = new Date(date.getTime() + date.getTimezoneOffset() * 60 * 1000);
     var month = months[date.getMonth()];
     var day = date.getDate();
     return (month + " " + day + ", " + date.getFullYear());

@@ -12,6 +12,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -45,6 +47,7 @@ public class currentProjects extends HttpServlet {
             response.setCharacterEncoding("UTF-8");
 
             if (getSearchResult()) {
+                System.out.println(searchResult);
                 response.getWriter().write(searchResult);
             } else {
                 response.getWriter().write(new JSONObject().put("message", eMessage).toString());
@@ -52,6 +55,7 @@ public class currentProjects extends HttpServlet {
 
             response.flushBuffer();
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             throw new ServletException(e);
         }
     }
@@ -122,77 +126,94 @@ public class currentProjects extends HttpServlet {
     public int daysBetween(Date d) {
         Date d1 = new Date();
         int daysBetween = (int) ((d.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24));
-        return (daysBetween > 0) ? daysBetween : 1;
+        return daysBetween;
     }
 
-    // Duplicate
-    public Map<String, String> getSearchDriveJSONResults(ResultSet rs) throws Exception {
+
+    public Map<String, String> getSearchDriveJSONResults(ResultSet rs) {
         Map<String, String> map = new HashMap<String, String>();
 
-        java.sql.Date createdDate = rs.getDate("created_date");
-        //System.out.println("--- GETSEARCHDRIVEJSONRESULTS IN CURRENTPROJECTS: " + createdDate.toString());
+        try {
+            java.sql.Date createdDate = rs.getDate("created_date");
+            //System.out.println("--- GETSEARCHDRIVEJSONRESULTS IN CURRENTPROJECTS: " + createdDate.toString());
 
-        int dataSize = rs.getInt("data_size");
-        int applianceCount = rs.getInt("appliance_count");
+            int dataSize = rs.getInt("data_size");
+            int applianceCount = rs.getInt("appliance_count");
 
-        map.put("customer", rs.getString("customer"));
-        map.put("jira", rs.getString("jira"));
-        map.put("dc", rs.getString("dc"));
-        map.put("data_size", "" + dataSize);
-        map.put("import_engr", rs.getString("import_engr"));
-        map.put("tem", rs.getString("tem"));
-        map.put("current_stage", rs.getString("current_stage"));
-        map.put("created_date", createdDate.toString());
-        System.out.println("---***--- created date: " + createdDate.toString());
-        map.put("notes", rs.getString("notes"));
-        map.put("appliance_count", "" + applianceCount);
-        map.put("current_appliance_count", "" + applianceCount);
-        map.put("is_completed", (rs.getBoolean("is_completed")) ? "Yes" : "No");
+            map.put("customer", rs.getString("customer"));
+            map.put("jira", rs.getString("jira"));
+            map.put("dc", rs.getString("dc"));
+            map.put("data_size", "" + dataSize);
+            map.put("import_engr", rs.getString("import_engr"));
+            map.put("tem", rs.getString("tem"));
+            map.put("current_stage", rs.getString("current_stage"));
+            map.put("created_date", createdDate.toString());
+            System.out.println("---***--- created date: " + createdDate.toString());
+            map.put("notes", rs.getString("notes"));
+            map.put("appliance_count", "" + applianceCount);
+            map.put("current_appliance_count", "" + applianceCount);
+            map.put("is_completed", (rs.getBoolean("is_completed")) ? "Yes" : "No");
 
-        //Added for Closing Date
-        if ((createdDate == null) || (createdDate.toString().isEmpty())) { // Check if created_date is set to null or blank.
-            map.put("closing_date", "Date Not Set");
-        } else {
-            double calculateClosing = dataSize / (applianceCount * 150); // Calculate closing date by number of days from creation.
-            int calculatedClosingInt = (int) Math.ceil(calculateClosing); // Round up
-            int totalPreProcessingNum = calculatedClosingInt + 14; // Total number of days that takes to comple plus 2 weeks cushion
-            int totalProcessingNum = calculatedClosingInt; // Total number of days that takes to comple plus 2 weeks cushion
-            int mapping = 30;
-            int overallProcess = totalPreProcessingNum + mapping + totalProcessingNum; // Total amout of days required for the process to finish
-            System.out.println("Data Size: " + dataSize); // Test run
-            System.out.println("Number of Apps: " + applianceCount); // Test run
-            System.out.println("Pre-processing Days: " + totalPreProcessingNum); // Test run
-            System.out.println("Mapping: " + "30"); // Test run
-            System.out.println("Processing: " + totalProcessingNum); // Test run
-            System.out.println("TOTAL DAYS: " + overallProcess); // Test run
+            //Added for Closing Date
+            if ((createdDate == null) || (createdDate.toString().isEmpty())) { // Check if created_date is set to null or blank.
+                map.put("closing_date", "Date not set");
+            } else {
+                double calculateClosing = dataSize / (applianceCount * 150); // Calculate closing date by number of days from creation.
+                int calculatedClosingInt = (int) Math.ceil(calculateClosing); // Round up
+                int totalPreProcessingNum = calculatedClosingInt + 14; // Total number of days that takes to comple plus 2 weeks cushion
+                int totalProcessingNum = calculatedClosingInt; // Total number of days that takes to comple plus 2 weeks cushion
+                int mapping = 30;
+                int overallProcess = totalPreProcessingNum + mapping + totalProcessingNum; // Total amout of days required for the process to finish
+                System.out.println("Data Size: " + dataSize); // Test run
+                System.out.println("Number of Apps: " + applianceCount); // Test run
+                System.out.println("Pre-processing Days: " + totalPreProcessingNum); // Test run
+                System.out.println("Mapping: " + "30"); // Test run
+                System.out.println("Processing: " + totalProcessingNum); // Test run
+                System.out.println("TOTAL DAYS: " + overallProcess); // Test run
 
+//                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd"); //Formats the date to "-" in between year month and date
+//                String dateInString = createdDate.toString(); // Gets the value of created_date and set to string
+//                String[] splitter = dateInString.split("-"); //Splits into yyyymmdd
+//
+//                String year = splitter[0];
+//                int yearInt = Integer.parseInt(year); //Set to integer to be use in Calendar Object
+//                String month = splitter[1];
+//                int monthInt = Integer.parseInt(month); //Set to integer to be use in Calendar Object
+//                String day = splitter[2];
+//                int dayInt = Integer.parseInt(day); //Set to integer to be use in Calendar Object
+//
+//                Calendar calendar = new GregorianCalendar(yearInt, monthInt - 1, dayInt + overallProcess); // Create Calendar object to do calculation
+//                String calendarFormatter = formatter.format(calendar.getTime()); // format calendar to string to show values to output
+//                System.out.println("Calendar: " + calendarFormatter); //Test run
 
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd"); //Formats the date to "-" in between year month and date
-            String dateInString = createdDate.toString(); // Gets the value of created_date and set to string
-            String[] splitter = dateInString.split("-"); //Splits into yyyymmdd
+                java.sql.Date endDate = stringToDate(createdDate.toString());
+                System.out.println(endDate.toString());
+                long daysInMS = (long) overallProcess * 86400000;
+                System.out.println(endDate.getTime() + daysInMS);
+                endDate.setTime(endDate.getTime() + daysInMS);
+                System.out.println(endDate.toString());
 
-            String year = splitter[0];
-            int yearInt = Integer.parseInt(year); //Set to integer to be use in Calendar Object
-            String month = splitter[1];
-            int monthInt = Integer.parseInt(month); //Set to integer to be use in Calendar Object
-            String day = splitter[2];
-            int dayInt = Integer.parseInt(day); //Set to integer to be use in Calendar Object
+                map.put("closing_date", endDate.toString()); // Set closing_date as calendarFormatter
 
-            Calendar calendar = new GregorianCalendar(yearInt, monthInt - 1, dayInt + overallProcess); // Create Calendar object to do calculation
-            String calendarFormatter = formatter.format(calendar.getTime()); // format calendar to string to show values to output
-            System.out.println("Calendar: " + calendarFormatter); //Test run
-
-            map.put("closing_date", calendarFormatter); // Set closing_date as calendarFormatter
-
-            int betweenTodayAndFinish = daysBetween(calendar.getTime());
-            String betweenDaysFromTodayAndFinish = Integer.toString(betweenTodayAndFinish);
-            map.put("daysBetweenTodayAndFinish", betweenDaysFromTodayAndFinish); //Getting days between today and finish date.
-            System.out.println("Between: " + daysBetween(calendar.getTime()));
-            //./Added for Closing Date
+                int daysBetween = daysBetween(endDate);
+                map.put("daysBetweenTodayAndFinish", "" + daysBetween); //Getting days between today and finish date.
+                System.out.println("Between: " + daysBetween);
+                //./Added for Closing Date
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
 
         // map.put("closing_date", date);
         //System.out.println(map.toString());
         return map;
+    }
+
+    public java.sql.Date stringToDate(String date) throws ParseException {
+        if (date.trim().isEmpty()) {
+            return null;
+        }
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        return new java.sql.Date(format.parse(date).getTime());
     }
 }

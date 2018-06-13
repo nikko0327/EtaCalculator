@@ -10,6 +10,6 @@
             driverClassName="com.mysql.jdbc.Driver"
             url="jdbc:mysql://localhost/EtaCalculator"
             username="root"
-            password=""
+            password="@Rm@d1ll0!"
     />
 </Context>

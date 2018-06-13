@@ -6,13 +6,14 @@
   To change this template use File | Settings | File Templates.
 --%>
 
-<%@include file="navbar.jsp" %>
+<%@ include file="navbar.jsp" %>
 <br>
 
 <div id="search_options">
     <h1>Current Project Sheet</h1>
     <div>
-        <button class="btn btn-default"><a href="createCurrentProjects.jsp">Add Current Project</a></button>
+        <button id="create_new_current_project" class="btn btn-default">
+            <a href="createCurrentProjects.jsp">Add Current Project</a></button>
     </div>
     <br>
     <form class="form-horizontal" id="search_form">

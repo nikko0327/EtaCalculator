@@ -21,6 +21,10 @@ $(document).ready(function () {
         e.stopPropagation();
     });
 
+    $("#create_new_upcoming").click(function () {
+        window.location.href = 'createUpcomingProjects.jsp';
+    });
+
     $(document).on('click', '#drive_table tr', function () {
         var id = $(this).attr('id').replace('tr_', '');
         getValuesById(id);
@@ -168,6 +172,7 @@ $(document).ready(function () {
                 expected_end_month: expected_end_month,
                 updated_date: updated_date,
                 apps_needed: apps_needed,
+                started: false
             },
             function (data) {
                 $('#modal_spinner').hide();
@@ -201,6 +206,7 @@ $(document).ready(function () {
         $('#start_modal_notes').val(notes);
 
         $('#modal_spinner').hide();
+
         $('#startModal').modal();
 
         e.stopPropagation();
@@ -233,21 +239,42 @@ $(document).ready(function () {
                 current_stage: current_stage,
                 created_date: created_date,
                 appliance_count: appliance_count,
-                notes: notes,
-
             },
             function (data) {
                 $('#modal_spinner').hide();
                 if ((used + parseInt(appliance_count)) > applianceCount) {
                     alert("Error: Number of appliances required exceeds appliances available..\n" + "Customer: " + customer_name);
                     $('[data-dismiss="modal"]').click();
-                    ReloadPage();
+                    //ReloadPage();
                 } else {
+
+                        $.post("updateUpcomingProject",
+                            {
+                                customer_name: customer,
+                                sow_created_date: "",
+                                estimated_size: "",
+                                jira: "",
+                                dc: "",
+                                tem: "",
+                                notes: "",
+                                expected_start_month: "",
+                                expected_end_month: "",
+                                updated_date: "",
+                                apps_needed: "",
+                                started: true,
+                                trying_to_start: true
+                            },
+                            function (data) {
+                                ReloadPage();
+                            }, 'json');
+
                     alert("Success: Please check the current projects page.\n" + "Customer: " + customer_name + "\n" + "Delete the upcoming project row once confirmed.");
                     $('[data-dismiss="modal"]').click();
-                    ReloadPage();
+                    //ReloadPage();
                 }
-            }, 'json');
+            },
+            'json'
+        );
     });
 
 })
@@ -319,7 +346,13 @@ function currentProject() {
                 var i = 1;
                 $.each(data.drives, function (k, v) {
 
-                    value += "<tr class='detail' id='tr_" + i + "'>";
+                    value += "<tr class='detail' id='tr_" + i + "' ";
+                    if (v.started == "true") {
+                        //alert(v.customer_name + ": " + v.started);
+                        value += " style='background-color: lightgreen;'>";
+                    } else {
+                        value += ">";
+                    }
 
                     if (v.customer_name === undefined) {
                         value += "<td>" + "Error: " + v.message + "</td>";
@@ -338,8 +371,14 @@ function currentProject() {
                         value += "<td>" + formatDate(v.expected_end_month) + "</td>";
                         endMonth.push(v.expected_end_month) // Adding end date to an array for charting
                         value += "<td>" + formatDate(v.updated_date) + "</td>";
-                        applianceInUse.push(v.apps_needed);
-                        value += "<td>" + v.apps_needed + "</td>";
+                        var apps_needed = v.apps_needed;
+                        if (!isNaN(apps_needed)) {
+                            applianceInUse.push(v.apps_needed);
+                            value += "<td>" + v.apps_needed + "</td>";
+                        } else {
+                            applianceInUse.push(0);
+                            value += "<td>" + 0 + " (No end date)</td>";
+                        }
 
                         //Button for sending the row to current projects
                         value += "<td><button name ='startButton' class='btn btn-mini btn-block' id='start_" + i + "' style='color: green'><b>Start</b></i></button>";
@@ -363,8 +402,10 @@ function currentProject() {
                             "<input type='hidden' id='expected_end_month" + i + "' value='" + v.expected_end_month + "'>" +
                             "<input type='hidden' id='updated_date" + i + "' value='" + v.updated_date + "'>" +
                             "<input type='hidden' id='apps_needed" + i + "' value='" + v.apps_needed + "'>" +
+                            "<input type='hidden' id='started" + i + "' value='" + v.started + "'>" +
                             "</td>";
                     }
+
                     value += "</tr>";
                     i++;
                 });
@@ -402,6 +443,7 @@ function getValuesById(id) {
     expected_end_month = $('#expected_end_month' + id).val();
     updated_date = $('#updated_date' + id).val();
     apps_needed = $('#apps_needed' + id).val();
+    started = $('#started' + id).val();
 }
 
 // For charting Start
@@ -447,15 +489,24 @@ function ReloadPage() {
 
 //Formatting date from yyyy-MM-dd to MMMM-dd-yyyy
 function formatDate(d) {
-    d += " PST"; // Can change timezones at will, EDT, EST, etc.
+    if (d == null || d == undefined || d == '') {
+        return "";
+    }
+    //alert(d);
+
+    // d += " PST"; // Can change timezones at will, EDT, EST, etc.
     const months = ["January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"
     ];
     var date = new Date(d);
+    date = new Date(date.getTime() + date.getTimezoneOffset() * 60 * 1000);
+    //alert(date.toString());
     var month = months[date.getMonth()];
     var day = date.getDate();
+
     return (month + " " + day + ", " + date.getFullYear());
     //return (date.getMonth() + 1) + '/' + (date.getDate() + 1) + '/' + date.getFullYear();
+    //return d;
 }
 
 
